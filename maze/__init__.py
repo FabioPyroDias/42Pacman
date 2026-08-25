@@ -1,3 +1,3 @@
-from .maze_adapter import MazeAdapter
+from .maze_adapter import MazeAdapter, Cell
 
-__all__ = ["MazeAdapter"]
+__all__ = ["MazeAdapter", "Cell"]

@@ -1,8 +1,11 @@
 import pygame
-from maze import MazeAdapter
+from maze import MazeAdapter, Cell
+
+Coordinates = tuple[int, int]
 
 
-WALL_OFFSET = 5
+WALL_THICKNESS = 5
+CELL_SIZE = 50
 
 
 class GUI:
@@ -10,41 +13,52 @@ class GUI:
         pygame.init()
         pygame.display.set_caption(title)
         self.screen = pygame.display.set_mode(size)
+        self.ns_wall = pygame.Surface((CELL_SIZE, WALL_THICKNESS))
+        self.fill(self.ns_wall, (255, 255, 255))
+        self.lw_wall = pygame.Surface((WALL_THICKNESS, CELL_SIZE))
+        self.fill(self.lw_wall, (255, 255, 255))
 
     def draw_maze(self, maze: MazeAdapter):
         background = pygame.Surface(self.screen.get_size())
-        background.fill((255, 255, 255))
+        background.fill((0, 0, 0))
         self.screen.blit(background, (0, 0))
-        NS_path = pygame.Surface((40, 45))
-        LW_path = pygame.Surface((45, 40))
-        NS_path.fill((0, 0, 0))
-        LW_path.fill((0, 0, 0))
         for y in range(maze.height):
             for x in range(maze.width):
-                directions = [k for k, v in maze.get_cell(x, y).items()
-                              if not v]
-                for direction in directions:
-                    self.draw_path(direction, NS_path, LW_path,
-                                   (x * 50, y * 50))
+                self.draw_cell(maze.get_cell(x, y),
+                               (x * CELL_SIZE, y * CELL_SIZE))
         pygame.display.update()
-
-    def draw_path(self, direction: str, NS: pygame.Surface,
-                  LW: pygame.Surface, cell_pos: tuple[int, int]) -> None:
-        x, y = cell_pos
-        match direction:
-            case "N":
-                self.screen.blit(NS, (x + WALL_OFFSET, y))
-            case "L":
-                self.screen.blit(LW, (x + WALL_OFFSET, y + WALL_OFFSET))
-            case "S":
-                self.screen.blit(NS, (x + WALL_OFFSET, y + WALL_OFFSET))
-            case "W":
-                self.screen.blit(LW, (x, y + WALL_OFFSET))
-            case _:
-                pass
 
     def get_event(self) -> list[pygame.event.Event]:
         return pygame.event.get()
+
+    def draw_cell(self, cell: Cell, coord: Coordinates) -> None:
+        x, y = coord
+        for direction in cell:
+            if cell[direction]:
+                match direction:
+                    case "N":
+                        self.screen.blit(self.ns_wall,
+                                         (x, y))
+                    case "L":
+                        self.screen.blit(self.lw_wall,
+                                         (x + CELL_SIZE, y + WALL_THICKNESS))
+                    case "S":
+                        self.screen.blit(self.ns_wall,
+                                         (x + WALL_THICKNESS, y + CELL_SIZE))
+                    case "W":
+                        self.screen.blit(self.lw_wall,
+                                         (x, y))
+                    case _:
+                        pass
+
+    def fill(self, surface: pygame.Surface,
+             color: tuple[int, int, int]) -> None:
+        x, y = 0, 0
+        w, h = surface.get_size()
+        pixel_arr = pygame.PixelArray(surface)
+        for y in range(h):
+            for x in range(w):
+                pixel_arr[x, y] = color  # type: ignore
 
     def quit(self) -> None:
         pygame.quit()
