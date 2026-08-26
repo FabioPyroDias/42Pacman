@@ -1,4 +1,5 @@
 import pygame
+from .scenes import Menu
 from maze import MazeAdapter, Cell
 
 Coordinates = tuple[int, int]
@@ -13,10 +14,14 @@ class GUI:
         pygame.init()
         pygame.display.set_caption(title)
         self.screen = pygame.display.set_mode(size)
+        self.menu = Menu(self.screen)
         self.ns_wall = pygame.Surface((CELL_SIZE, WALL_THICKNESS))
         self.fill(self.ns_wall, (255, 255, 255))
         self.lw_wall = pygame.Surface((WALL_THICKNESS, CELL_SIZE))
         self.fill(self.lw_wall, (255, 255, 255))
+
+    def draw_menu(self):
+        self.menu.load_menu()
 
     def draw_maze(self, maze: MazeAdapter):
         background = pygame.Surface(self.screen.get_size())
