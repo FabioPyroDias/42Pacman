@@ -1,7 +1,12 @@
 """Utility functions for validating configuration fields."""
 
 from typing import Any
-from consts import SAFE_DEFAULTS, PATTERN_42_CELL_COUNT, MAZE_CORNERS
+from consts import (SAFE_DEFAULTS, PATTERN_42_CELL_COUNT, MAZE_CORNERS,
+                    MIN_DIMENSIONS, MAX_DIMENSIONS,
+                    MIN_LIVES, MAX_LIVES, MIN_POINTS_PACGUM,
+                    MAX_POINTS_PACGUM, MIN_POINTS_SUPER_PACGUM,
+                    MAX_POINTS_SUPER_PACGUM, MIN_POINTS_GHOST,
+                    MAX_POINTS_GHOST, MIN_LEVEL_TIME, MAX_LEVEL_TIME)
 
 
 def is_valid_highscore_filename(value: Any) -> bool:
@@ -27,9 +32,10 @@ def is_valid_level(value: Any) -> bool:
     Validates a list of level configurations.
 
     Checks if the input is a list with at least 10 items, where each item is a
-    dictionary containing valid 'width' (14-32), 'height' (14-32), and
-    'number_of_pacgums' (width * height - PATTERN_42_CELL_COUNT - MAZE_CORNERS)
-    settings.
+        dictionary containing valid 'width' (MIN_DIMENSIONS - MAX_DIMENSIONS),
+        'height' (MIN_DIMENSIONS - MAX_DIMENSIONS), and 'number_of_pacgums'
+        (width * height - PATTERN_42_CELL_COUNT - MAZE_CORNERS)
+        settings.
 
     Args:
         value (Any): The level configuration value to validate.
@@ -54,20 +60,16 @@ def is_valid_level(value: Any) -> bool:
         value_height = level.get("height", "")
         value_number_of_pacgums = level.get("number_of_pacgums", "")
 
-        value_min_dimensions = SAFE_DEFAULTS["level"][0]["width"]
-        value_max_dimensions = (
-            SAFE_DEFAULTS["level"][len(SAFE_DEFAULTS["level"]) - 1]["width"])
-
         if not isinstance(value_width, int):
             return False
-        if (value_width < value_min_dimensions
-           or value_width > value_max_dimensions):
+        if (value_width < MIN_DIMENSIONS
+           or value_width > MAX_DIMENSIONS):
             return False
 
         if not isinstance(value_height, int):
             return False
-        if (value_height < value_min_dimensions
-           or value_height > value_max_dimensions):
+        if (value_height < MIN_DIMENSIONS
+           or value_height > MAX_DIMENSIONS):
             return False
 
         max_pacgums = (value_width * value_height
@@ -83,73 +85,80 @@ def is_valid_level(value: Any) -> bool:
 
 def is_valid_lives(value: Any) -> bool:
     """
-    Validates player lives count (1 to 10).
+    Validates player lives count
+        (MIN_LIVES to MAX_LIVES).
 
     Args:
         value (Any): The player lives to validate.
 
     Returns:
-        bool: True if configuration is between 1 and 10,
-                False otherwise.
+        bool: True if configuration is between MIN_LIVES
+            and MAX_LIVES, False otherwise.
     """
 
     if not isinstance(value, int):
         return False
-    if value < 1 or value > 10:
+    if value < MIN_LIVES or value > MAX_LIVES:
         return False
     return True
 
 
 def is_valid_points_per_pacgum(value: Any) -> bool:
     """
-    Validates points awarded per pacgum (5 to 20).
+    Validates points awarded per pacgum
+        (MIN_POINTS_PACGUM to MAX_POINTS_PACGUM).
 
     Args:
         value (Any): The value to validate.
 
     Returns:
-        bool: True if integer between 5 and 20, False otherwise.
+        bool: True if integer between MIN_POINTS_PACGUM
+            and MAX_POINTS_PACGUM, False otherwise.
     """
 
     if not isinstance(value, int):
         return False
-    if value < 5 or value > 20:
+    if value < MIN_POINTS_PACGUM or value > MAX_POINTS_PACGUM:
         return False
     return True
 
 
 def is_valid_points_per_super_pacgum(value: Any) -> bool:
     """
-    Validates points awarded per super pacgum (25 to 150).
+    Validates points awarded per super pacgum
+        (MIN_POINTS_SUPER_PACGUM to MAX_POINTS_SUPER_PACGUM).
 
     Args:
         value (Any): The value to validate.
 
     Returns:
-        bool: True if integer between 25 and 150, False otherwise.
+        bool: True if integer between MIN_POINTS_SUPER_PACGUM
+            and MAX_POINTS_SUPER_PACGUM, False otherwise.
     """
 
     if not isinstance(value, int):
         return False
-    if value < 25 or value > 150:
+    if value < MIN_POINTS_SUPER_PACGUM or value > MAX_POINTS_SUPER_PACGUM:
         return False
     return True
 
 
 def is_valid_points_per_ghost(value: Any) -> bool:
     """
-    Validates points awarded per ghost (150 to 500).
+    Validates points awarded per ghost
+        (MIN_POINTS_GHOST to MAX_POINTS_GHOST).
 
     Args:
         value (Any): The value to validate.
 
     Returns:
-        bool: True if integer between 150 and 500, False otherwise.
+        bool: True if integer between MIN_POINTS_GHOST
+            and MAX_POINTS_GHOST, False otherwise.
     """
 
     if not isinstance(value, int):
         return False
-    if value < 150 or value > 500:
+    if value < MIN_POINTS_GHOST or value > MAX_POINTS_GHOST:
         return False
     return True
 
@@ -174,17 +183,19 @@ def is_valid_seed(value: Any) -> bool:
 
 def is_valid_level_max_time(value: Any) -> bool:
     """
-    Validates maximum level time limit in seconds (60 to 180).
+    Validates maximum level time limit in seconds
+        (MIN_LEVEL_TIME to MAX_LEVEL_TIME).
 
     Args:
         value (Any): The value to validate.
 
     Returns:
-        bool: True if integer between 60 and 180, False otherwise.
+        bool: True if integer between MIN_LEVEL_TIME
+            and MAX_LEVEL_TIME, False otherwise.
     """
 
     if not isinstance(value, int):
         return False
-    if value < 60 or value > 180:
+    if value < MIN_LEVEL_TIME or value > MAX_LEVEL_TIME:
         return False
     return True

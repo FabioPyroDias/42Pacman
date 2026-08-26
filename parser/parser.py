@@ -13,7 +13,8 @@ from parser.utils import (is_valid_highscore_filename,
                           is_valid_points_per_ghost,
                           is_valid_seed,
                           is_valid_level_max_time)
-from consts import SAFE_DEFAULTS, PATTERN_42_CELL_COUNT, MAZE_CORNERS
+from consts import (SAFE_DEFAULTS, PATTERN_42_CELL_COUNT, MAZE_CORNERS,
+                    MIN_DIMENSIONS, MAX_DIMENSIONS)
 import re
 import json
 
@@ -236,22 +237,17 @@ def correct_configs(wrong_configs: dict[str, Any]) -> dict[str, Any]:
                 value_number_of_pacgums = (
                     level[index].get("number_of_pacgums", ""))
 
-                min_dimensions = SAFE_DEFAULTS["level"][0]["width"]
-                max_dimensions = (
-                    SAFE_DEFAULTS["level"][len(
-                        SAFE_DEFAULTS["level"]) - 1]["width"])
-
                 if (not isinstance(value_width, int)
-                   or value_width < min_dimensions
-                   or value_width > max_dimensions):
+                   or value_width < MIN_DIMENSIONS
+                   or value_width > MAX_DIMENSIONS):
                     current_level["width"] = (
                         SAFE_DEFAULTS["level"][index]["width"])
                 else:
                     current_level["width"] = value_width
 
                 if (not isinstance(value_height, int)
-                   or value_height < min_dimensions
-                   or value_height > max_dimensions):
+                   or value_height < MIN_DIMENSIONS
+                   or value_height > MAX_DIMENSIONS):
                     current_level["height"] = (
                         SAFE_DEFAULTS["level"][index]["height"])
                 else:

@@ -19,7 +19,10 @@ debug:
 	@echo ""
 
 clean:
-	@echo ""
+	$(RM) config_tests/
+	$(RM) .mypy_cache
+	$(RM) __pycache__
+	$(RM) parser/__pycache__
 
 lint:
 	$(PYTHON) -m flake8
@@ -29,5 +32,5 @@ lint-strict:
 	$(PYTHON) -m flake8
 	$(PYTHON) -m mypy --strict .
 
-destroy:
-	@echo ""
+destroy: clean
+	$(RM) pacman
