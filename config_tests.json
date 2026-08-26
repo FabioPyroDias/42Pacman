@@ -1,0 +1,46 @@
+{
+    "highscore_filename": "path_to_file",
+    "level": [
+        {"width": 16, "height": 16},
+        {"width": 18, "height": 18},
+        {"width": 20, "height": 20}
+    ],
+
+    "number_of_pacgums": 42,
+    /*
+    "lives": 3,
+    "points_per_pacgum": 10,
+    "points_per_super_pacgum": 50,
+    */
+
+    #This line is removed
+    "points_per_ghost": 200,
+    "seed": 42,
+    //"level_max_time": 90
+}
+
+//This text
+#Can never
+/*
+appear!
+*/
+
+//---------------- Test ----------------\\
+"valid key": "valid value" //Non-display
+//"non-display key": "non-display value"
+"valid key": //"non-display value"
+"invalid //key": "non-display value"
+
+"valid key": "valid value" #Non-display
+#"non-display key": "non-display value"
+"valid key": #"non-display value"
+"invalid #key": "non-display value"
+
+"valid key": "valid value" /*Non-display*/
+/*"non-display key": "non-display value"*/
+"valid key": /*"non-display value"*/
+"invalid /*key": "non-display value"*/
+
+This is /* multi line comment with // inline comment
+another inline comment #
+*/
