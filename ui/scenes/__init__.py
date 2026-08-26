@@ -1,4 +1,4 @@
-from . main_menu import Menu
+from . main_menu import MainMenu
 
 
-__all__ = ["Menu"]
+__all__ = ["MainMenu"]
