@@ -579,6 +579,30 @@ echo '
     "level_max_time": 90
 }' > config_tests/test26.json
 
+# Test 27: Wrongly formatted
+echo '
+{
+    "highscore_filename": "path_to_file",
+    "level": [
+        {"width": 14 "number_of_pacgums": 174},
+        {"width": 16, "height": 16, "number_of_pacgums": 234},
+        {"width": 18, "height": 18, "number_of_pacgums": 302},
+        {"width": 20, "height": 20, "number_of_pacgums": 378},
+        {"width": 22, "height": 22, "number_of_pacgums": 462},
+        {"width": 24, "height": 24, "number_of_pacgums": 554},
+        {"width": 26, "height": 26, "number_of_pacgums": 654},
+        {"width": 28, "height": 28, "number_of_pacgums": 762},
+        {"width": 30, "height": 30, "number_of_pacgums": 878},
+        {"width": 32, "height": 32, "number_of_pacgums": 1002}
+    ],
+    "lives": 3,
+    "points_per_pacgum": 10,
+    "points_per_super_pacgum": 50,
+    "points_per_ghost": 200,
+    "seed": 42,
+    "level_max_time": 90
+}' > config_tests/test27.json
+
 echo "Test 1 - All correct"
 python3 test.py config_tests/test1.json
 echo -e
@@ -683,6 +707,10 @@ echo "Test 26 - Filled with commentaries, no error"
 python3 test.py config_tests/test26.json
 echo -e
 
-echo "Test 27 - No file"
+echo "Test 27 - Wrongly formatted"
+python3 test.py config_tests/test27.json
+echo -e
+
+echo "Test 28 - No file"
 python3 test.py config_tests/non_existent.json
 echo -e
