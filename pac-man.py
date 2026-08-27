@@ -3,16 +3,26 @@ from maze import MazeAdapter
 from game import GameState
 import pygame
 import random
+import time
 
 maze = MazeAdapter(seed=42)
 for line in maze.maze:
     print(line)
 gui = GUI("TEST", (len(maze.maze) * 50, len(maze.maze[0]) * 50))
 running = True
-state = GameState("menu", maze)
+state = GameState("menu", maze, pygame.time.Clock())
 
-
+frame_duration = 1 / 12  # fps alvo
+elapsed = 0  # usado para travar fps
+last_blink = time.perf_counter()
 while running:
+    if elapsed < frame_duration:  # para travar fps
+        time.sleep(frame_duration - elapsed)
+    state.clock.tick()  # debug (tirar depois)
+    current_time = time.perf_counter()
+    if not state.in_game and current_time - last_blink >= 0.5:
+        last_blink = current_time
+        state.blink = not state.blink
     gui.draw(game_state=state)
     for event in gui.get_event():
         if event.type == pygame.QUIT:
@@ -32,4 +42,5 @@ while running:
                 state.active_screen = "game"
                 state.in_game = True
                 print("GAME")
+    elapsed = time.perf_counter() - current_time
 gui.quit()

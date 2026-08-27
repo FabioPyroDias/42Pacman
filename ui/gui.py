@@ -1,13 +1,12 @@
 import pygame
 from .scenes import MainMenu
 from game import GameState
-from maze import MazeAdapter, Cell
+from maze import Cell
+from consts import (WALL_THICKNESS, CELL_SIZE, BACKGROUND_COLOR,
+                    FT_BACKGROUND_COLOR, WALL_COLOR)
+
 
 Coordinates = tuple[int, int]
-
-
-WALL_THICKNESS = 5
-CELL_SIZE = 50
 
 
 class GUI:
@@ -17,26 +16,29 @@ class GUI:
         self.screen = pygame.display.set_mode(size)
         self.main_menu = MainMenu(self.screen)
         self.ns_wall = pygame.Surface((CELL_SIZE, WALL_THICKNESS))
-        self._fill(self.ns_wall, (255, 255, 255))
+        self._fill(self.ns_wall, WALL_COLOR)
         self.lw_wall = pygame.Surface((WALL_THICKNESS, CELL_SIZE))
-        self._fill(self.lw_wall, (255, 255, 255))
+        self._fill(self.lw_wall, WALL_COLOR)
 
     def draw(self, game_state: GameState):
         draw_func = getattr(self, game_state.active_screen)
         assert draw_func is not None
-        draw_func(maze=game_state.maze)
+        draw_func(game_state)
+        self.screen.blit(pygame.font.SysFont(None, 30).render(
+            f"{round(game_state.clock.get_fps())}", 1, (255, 255, 255)),
+                         (30, 30))  # debug
         pygame.display.update()
 
-    def menu(self, **kwargs):
-        self.main_menu.render_menu()
+    def menu(self, game_state: GameState):
+        self.main_menu.render_menu(game_state=game_state)
 
-    def game(self, maze: MazeAdapter):
+    def game(self, game_state: GameState):
         background = pygame.Surface(self.screen.get_size())
-        background.fill((0, 0, 0))
+        background.fill(BACKGROUND_COLOR)
         self.screen.blit(background, (0, 0))
-        for y in range(maze.height):
-            for x in range(maze.width):
-                self._draw_cell(maze.get_cell(x, y),
+        for y in range(game_state.maze.height):
+            for x in range(game_state.maze.width):
+                self._draw_cell(game_state.maze.get_cell(x, y),
                                 (x * CELL_SIZE, y * CELL_SIZE))
 
     def get_event(self) -> list[pygame.event.Event]:
@@ -67,7 +69,7 @@ class GUI:
         if close_cell:
             backgroud_42 = pygame.Surface((CELL_SIZE - WALL_THICKNESS,
                                            CELL_SIZE - WALL_THICKNESS))
-            self._fill(backgroud_42, (100, 0, 100))
+            self._fill(backgroud_42, FT_BACKGROUND_COLOR)
             self.screen.blit(backgroud_42, (x + WALL_THICKNESS,
                                             y + WALL_THICKNESS))
 
