@@ -1,9 +1,9 @@
 import pygame
-from .scenes import MainMenu, Instructions
+from .scenes import MainMenu, Instructions, Gameplay
 from game import GameState
 from maze import Cell
 from consts import (WALL_THICKNESS, CELL_SIZE, BACKGROUND_COLOR,
-                    FT_BACKGROUND_COLOR, WALL_COLOR, WALL_OFFSET)
+                    FT_BACKGROUND_COLOR, WALL_COLOR)
 
 
 Coordinates = tuple[int, int]
@@ -16,6 +16,7 @@ class GUI:
         self.screen = pygame.display.set_mode(size, pygame.NOFRAME)
         self.main_menu = MainMenu(self.screen)
         self.instructions_menu = Instructions(self.screen)
+        self.gameplay = Gameplay(self.screen)
 
         self.ns_wall = pygame.Surface((CELL_SIZE + WALL_THICKNESS * 2,
                                        WALL_THICKNESS))
@@ -38,7 +39,7 @@ class GUI:
         draw_func(game_state)
         self.screen.blit(pygame.font.SysFont(None, 30).render(
             f"{round(game_state.clock.get_fps())}", 1, (255, 255, 255)),
-                         (30, 30))  # debug
+                         (80, 80))  # debug
         pygame.display.update()
 
     def menu(self, game_state: GameState):
@@ -51,14 +52,7 @@ class GUI:
             for x in range(game_state.maze.width):
                 self._draw_cell(game_state.maze.get_cell(x, y),
                                 (x * CELL_SIZE, y * CELL_SIZE))
-        sprite_death = pygame.image.load("assets/pacman_death.xpm")
-        self.screen.blit(sprite_death, ((8 * CELL_SIZE) + WALL_OFFSET,
-                                        (6 * CELL_SIZE) + WALL_OFFSET),
-                         (0, 0, 40, 40))
-        sprite_down = pygame.image.load("assets/pacman_down.xpm")
-        self.screen.blit(sprite_down, ((7 * CELL_SIZE) + WALL_OFFSET,
-                                       (7 * CELL_SIZE) + WALL_OFFSET),
-                         (0, 0, 40, 40))
+        self.gameplay.debug_animate()
 
     def instructions(self, *args):
         self._fill(self.screen, BACKGROUND_COLOR)
@@ -88,7 +82,7 @@ class GUI:
                                           ))
                     case "W":
                         self.screen.blit(self.lw_wall,
-                                            (x, y - WALL_THICKNESS))
+                                         (x, y - WALL_THICKNESS))
                     case _:
                         pass
             else:
