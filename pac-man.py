@@ -1,7 +1,7 @@
 from ui import GUI
 from maze import MazeAdapter
 from game import GameState
-from consts import CELL_SIZE, WALL_THICKNESS
+from consts import CELL_SIZE
 import pygame
 import random
 import time
@@ -9,8 +9,8 @@ import time
 maze = MazeAdapter(seed=42)
 for line in maze.maze:
     print(line)
-gui = GUI("TEST", (len(maze.maze) * CELL_SIZE + WALL_THICKNESS,
-                   len(maze.maze[0]) * CELL_SIZE + WALL_THICKNESS))
+gui = GUI("TEST", (len(maze.maze) * CELL_SIZE,
+                   len(maze.maze[0]) * CELL_SIZE))
 running = True
 state = GameState("menu", maze, pygame.time.Clock())
 

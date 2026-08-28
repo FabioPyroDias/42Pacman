@@ -3,7 +3,7 @@ from .scenes import MainMenu, Instructions
 from game import GameState
 from maze import Cell
 from consts import (WALL_THICKNESS, CELL_SIZE, BACKGROUND_COLOR,
-                    FT_BACKGROUND_COLOR, WALL_COLOR)
+                    FT_BACKGROUND_COLOR, WALL_COLOR, WALL_OFFSET)
 
 
 Coordinates = tuple[int, int]
@@ -17,14 +17,19 @@ class GUI:
         self.main_menu = MainMenu(self.screen)
         self.instructions_menu = Instructions(self.screen)
 
-        self.ns_wall = pygame.Surface((CELL_SIZE, WALL_THICKNESS))
+        self.ns_wall = pygame.Surface((CELL_SIZE + WALL_THICKNESS * 2,
+                                       WALL_THICKNESS))
         self._fill(self.ns_wall, WALL_COLOR)
-        self.lw_wall = pygame.Surface((WALL_THICKNESS, CELL_SIZE))
+
+        self.lw_wall = pygame.Surface((WALL_THICKNESS,
+                                       CELL_SIZE + WALL_THICKNESS * 2))
         self._fill(self.lw_wall, WALL_COLOR)
+
         self.background = pygame.Surface(self.screen.get_size())
         self._fill(self.background, BACKGROUND_COLOR)
-        self.backgroud_42 = pygame.Surface((CELL_SIZE - WALL_THICKNESS,
-                                            CELL_SIZE - WALL_THICKNESS))
+
+        self.backgroud_42 = pygame.Surface((CELL_SIZE - WALL_THICKNESS * 2,
+                                            CELL_SIZE - WALL_THICKNESS * 2))
         self._fill(self.backgroud_42, FT_BACKGROUND_COLOR)
 
     def draw(self, game_state: GameState):
@@ -46,6 +51,14 @@ class GUI:
             for x in range(game_state.maze.width):
                 self._draw_cell(game_state.maze.get_cell(x, y),
                                 (x * CELL_SIZE, y * CELL_SIZE))
+        sprite_death = pygame.image.load("assets/pacman_death.xpm")
+        self.screen.blit(sprite_death, ((8 * CELL_SIZE) + WALL_OFFSET,
+                                        (6 * CELL_SIZE) + WALL_OFFSET),
+                         (0, 0, 40, 40))
+        sprite_down = pygame.image.load("assets/pacman_down.xpm")
+        self.screen.blit(sprite_down, ((7 * CELL_SIZE) + WALL_OFFSET,
+                                       (7 * CELL_SIZE) + WALL_OFFSET),
+                         (0, 0, 40, 40))
 
     def instructions(self, *args):
         self._fill(self.screen, BACKGROUND_COLOR)
@@ -63,16 +76,19 @@ class GUI:
                 match direction:
                     case "N":
                         self.screen.blit(self.ns_wall,
-                                         (x, y))
+                                         (x - WALL_THICKNESS, y))
                     case "L":
                         self.screen.blit(self.lw_wall,
-                                         (x + CELL_SIZE, y))
+                                         (x + (CELL_SIZE - WALL_THICKNESS),
+                                          y - WALL_THICKNESS))
                     case "S":
                         self.screen.blit(self.ns_wall,
-                                         (x + WALL_THICKNESS, y + CELL_SIZE))
+                                         (x - WALL_THICKNESS,
+                                          y + (CELL_SIZE - WALL_THICKNESS)
+                                          ))
                     case "W":
                         self.screen.blit(self.lw_wall,
-                                         (x, y + WALL_THICKNESS))
+                                            (x, y - WALL_THICKNESS))
                     case _:
                         pass
             else:
