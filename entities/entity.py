@@ -1,9 +1,14 @@
 from enums import Direction
 
 
-class MovableEntity():
-    def __init__(self, pos: tuple[int, int], direction: Direction) -> None:
+class Entity():
+    def __init__(self, pos: tuple[int, int]) -> None:
         self.pos = pos
+
+
+class MovableEntity(Entity):
+    def __init__(self, pos: tuple[int, int], direction: Direction) -> None:
+        super().__init__(pos)
         self.direction = direction
         self.next_direction: Direction | None = None
         self.move_progress: float = 0.0

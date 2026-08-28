@@ -1,9 +1,10 @@
 """Abstract base class and concrete implementations for collectable items."""
 
 from abc import ABC, abstractmethod
+from entities.entity import Entity
 
 
-class Collectable(ABC):
+class Collectable(ABC, Entity):
     """
     Abstract base class representing an item
         that can be collected in the game.
@@ -25,7 +26,7 @@ class Collectable(ABC):
             None
         """
 
-        self.pos = pos
+        super().__init__(pos)
         self.points = points
 
     @abstractmethod
