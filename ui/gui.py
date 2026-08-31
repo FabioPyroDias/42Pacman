@@ -53,6 +53,7 @@ class GUI:
                 self._draw_cell(game_state.maze.get_cell(x, y),
                                 (x * CELL_SIZE, y * CELL_SIZE))
         self.gameplay.debug_animate()
+        self.gameplay.draw_entities(game_state)
 
     def instructions(self, *args):
         self._fill(self.screen, BACKGROUND_COLOR)

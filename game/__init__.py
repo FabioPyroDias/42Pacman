@@ -1,4 +1,4 @@
-from .game_state import GameState
+from .game_state import GameState, Entities
 
 
-__all__ = ["GameState"]
+__all__ = ["GameState", "Entities"]
