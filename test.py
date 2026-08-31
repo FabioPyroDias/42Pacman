@@ -1,8 +1,10 @@
 from parser.parser import parser_configuration_file
+from maze.maze_adapter import MazeAdapter
 import sys
-from enums import Direction
 
 
 if __name__ == "__main__":
-    parser_configuration_file(sys.argv[1])
-    print(Direction.EAST.value - Direction.NORTH.value)
+    configs = parser_configuration_file(sys.argv[1])
+    level = configs["level"][0]
+    maze = MazeAdapter(size=(level["width"], level["height"]),
+                       seed=configs["seed"])

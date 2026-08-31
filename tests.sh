@@ -603,114 +603,121 @@ echo '
     "level_max_time": 90
 }' > config_tests/test27.json
 
+# Test 28: JSON top level isn't object
+echo '42' > config_tests/test28.json
+
 echo "Test 1 - All correct"
-python3 test.py config_tests/test1.json
+pacman/bin/python3 test.py config_tests/test1.json
 echo -e
 
 echo "Test 2 - Missing key"
-python3 test.py config_tests/test2.json
+pacman/bin/python3 test.py config_tests/test2.json
 echo -e
 
 echo "Test 3 - Missing levels"
-python3 test.py config_tests/test3.json
+pacman/bin/python3 test.py config_tests/test3.json
 echo -e
 
 echo "Test 4 - Wrong value in 'highscore_filename'"
-python3 test.py config_tests/test4.json
+pacman/bin/python3 test.py config_tests/test4.json
 echo -e
 
 echo "Test 5 - Empty value in 'highscore_filename'"
-python3 test.py config_tests/test5.json
+pacman/bin/python3 test.py config_tests/test5.json
 echo -e
 
 echo "Test 6 - Wrong 'width' in 'level'"
-python3 test.py config_tests/test6.json
+pacman/bin/python3 test.py config_tests/test6.json
 echo -e
 
 echo "Test 7 - Wrong value on 'width' in 'level'"
-python3 test.py config_tests/test7.json
+pacman/bin/python3 test.py config_tests/test7.json
 echo -e
 
 echo "Test 8 - Wrong 'height' in 'level'"
-python3 test.py config_tests/test8.json
+pacman/bin/python3 test.py config_tests/test8.json
 echo -e
 
 echo "Test 9 - Wrong value on 'height' in 'level'"
-python3 test.py config_tests/test9.json
+pacman/bin/python3 test.py config_tests/test9.json
 echo -e
 
 echo "Test 10 - Wrong 'number_of_pacgums' in 'level'"
-python3 test.py config_tests/test10.json
+pacman/bin/python3 test.py config_tests/test10.json
 echo -e
 
 echo "Test 11 - Wrong value on 'number_of_pacgums' in 'level'"
-python3 test.py config_tests/test11.json
+pacman/bin/python3 test.py config_tests/test11.json
 echo -e
 
 echo "Test 12 - Wrong value in 'lives'"
-python3 test.py config_tests/test12.json
+pacman/bin/python3 test.py config_tests/test12.json
 echo -e
 
 echo "Test 13 - Empty value in 'lives'"
-python3 test.py config_tests/test13.json
+pacman/bin/python3 test.py config_tests/test13.json
 echo -e
 
 echo "Test 14 - Wrong value in 'points_per_pacgum'"
-python3 test.py config_tests/test14.json
+pacman/bin/python3 test.py config_tests/test14.json
 echo -e
 
 echo "Test 15 - Empty value in 'points_per_pacgum'"
-python3 test.py config_tests/test15.json
+pacman/bin/python3 test.py config_tests/test15.json
 echo -e
 
 echo "Test 16 - Wrong value in 'points_per_super_pacgum'"
-python3 test.py config_tests/test16.json
+pacman/bin/python3 test.py config_tests/test16.json
 echo -e
 
 echo "Test 17 - Wrong value in 'points_per_super_pacgum'"
-python3 test.py config_tests/test17.json
+pacman/bin/python3 test.py config_tests/test17.json
 echo -e
 
 echo "Test 18 - Wrong value in 'points_per_ghost'"
-python3 test.py config_tests/test18.json
+pacman/bin/python3 test.py config_tests/test18.json
 echo -e
 
 echo "Test 19 - Wrong value in 'points_per_ghost'"
-python3 test.py config_tests/test19.json
+pacman/bin/python3 test.py config_tests/test19.json
 echo -e
 
 echo "Test 20 - Wrong value in 'seed'"
-python3 test.py config_tests/test20.json
+pacman/bin/python3 test.py config_tests/test20.json
 echo -e
 
 echo "Test 21 - Wrong value in 'seed'"
-python3 test.py config_tests/test21.json
+pacman/bin/python3 test.py config_tests/test21.json
 echo -e
 
 echo "Test 22 - Wrong value in 'level_max_time'"
-python3 test.py config_tests/test22.json
+pacman/bin/python3 test.py config_tests/test22.json
 echo -e
 
 echo "Test 23 - Wrong value in 'level_max_time'"
-python3 test.py config_tests/test23.json
+pacman/bin/python3 test.py config_tests/test23.json
 echo -e
 
 echo "Test 24 - Empty file"
-python3 test.py config_tests/test24.json
+pacman/bin/python3 test.py config_tests/test24.json
 echo -e
 
 echo "Test 25 - No permission"
-python3 test.py config_tests/test25.json
+pacman/bin/python3 test.py config_tests/test25.json
 echo -e
 
 echo "Test 26 - Filled with commentaries, no error"
-python3 test.py config_tests/test26.json
+pacman/bin/python3 test.py config_tests/test26.json
 echo -e
 
 echo "Test 27 - Wrongly formatted"
-python3 test.py config_tests/test27.json
+pacman/bin/python3 test.py config_tests/test27.json
 echo -e
 
-echo "Test 28 - No file"
-python3 test.py config_tests/non_existent.json
+echo "Test 28 - JSON top level isn't object"
+pacman/bin/python3 test.py config_tests/test28.json
+echo -e
+
+echo "Test 29 - No file"
+pacman/bin/python3 test.py config_tests/non_existent.json
 echo -e

@@ -22,8 +22,9 @@ clean:
 	$(RM) config_tests/
 	$(RM) .mypy_cache
 	$(RM) __pycache__
-	$(RM) parser/__pycache__
 	$(RM) entities/__pycache__
+	$(RM) maze/__pycache__
+	$(RM) parser/__pycache__
 
 lint:
 	$(PYTHON) -m flake8
