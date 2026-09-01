@@ -101,6 +101,27 @@ class MovableEntity(Entity):
                 return (self.pos[0] - 1, self.pos[1])
         return (-1, -1)
 
+    def get_next_position_on(self, pos: tuple[int, int],
+                             direction: Direction) -> tuple[int, int]:
+        """Calculates the neighbour cell position in a given direction.
+
+        Args:
+            pos (tuple[int, int]): Starting grid coordinates (x, y).
+            direction (Direction): Direction to move from pos.
+
+        Returns:
+            tuple[int, int]: The resulting coordinates (x, y).
+        """
+
+        if direction == Direction.NORTH:
+            return (pos[0], pos[1] - 1)
+        elif direction == Direction.SOUTH:
+            return (pos[0], pos[1] + 1)
+        elif direction == Direction.EAST:
+            return (pos[0] + 1, pos[1])
+        else:
+            return (pos[0] - 1, pos[1])
+
     def update(self, delta: float, maze: MazeAdapter) -> None:
         """
         Updates movement progress and grid position based on maze walls.

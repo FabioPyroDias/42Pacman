@@ -101,6 +101,32 @@ class MazeAdapter():
         self.__mazegenerator.generate(seed)
         self.maze = self.__mazegenerator.maze
 
+    def is_reachable(self, pos: tuple[int, int]) -> bool:
+        """Checks whether a given grid position is accessible.
+
+        A position is considered unreachable if it is invalid/None
+            or if its completely surrounded by walls on all four sides.
+
+        Args:
+            pos (tuple[int, int]): The (x, y) grid coordinates to check.
+
+        Returns:
+            bool: True if the position can be reached, False otherwise.
+    """
+
+        if not pos:
+            return False
+        if pos[0] < 0 or pos[0] >= self.width:
+            return False
+        if pos[1] < 0 or pos[1] >= self.height:
+            return False
+
+        cell = self.get_cell(pos[0], pos[1])
+
+        if cell.n and cell.e and cell.s and cell.w:
+            return False
+        return True
+
     def is_walkable(self, current_pos: tuple[int, int],
                     next_pos: tuple[int, int]) -> bool:
         """
