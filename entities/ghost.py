@@ -175,7 +175,7 @@ class Ghost(MovableEntity):
                                        blinky_pos)
 
         opposite_direction = Direction(
-            (self.direction.value) % (len(Direction)))
+            (self.direction.value + 2) % (len(Direction)))
 
         best_direction: Direction | None = None
         best_distance = float("inf")
@@ -229,3 +229,165 @@ class Ghost(MovableEntity):
             self.set_next_direction(next_direction)
 
         self.update(delta, self.maze)
+
+
+class Blinky(Ghost):
+    """Represents the Blinky ghost entity.
+
+    Blinky directly pursues Pacman by targeting it's exact position
+        during the CHASE state.
+    """
+
+    def calculate_chase_target(self, pacman_pos: tuple[int, int],
+                               pacman_direction: Direction,
+                               blinky_pos: tuple[int, int] | None = None
+                               ) -> tuple[int, int]:
+        """Calculates the target coordinate for Blinky in the CHASE state.
+
+        Args:
+            pacman_pos (tuple[int, int]): Current (x, y)
+                coordinates of Pacman.
+            pacman_direction (Direction): Current direction
+                Pacman is facing. Unused by Blinky.
+            blinky_pos (tuple[int, int] | None, optional): Current (x, y)
+                coordinates of Blinky. Unused by Blinky.
+
+        Returns:
+            tuple[int, int]: The calculated target (x, y) coordinates.
+        """
+
+        return pacman_pos
+
+
+class Pinky(Ghost):
+    """Represents the Pinky ghost entity.
+
+    Pinky attempts to ambush Pacman by targeting a position four cells ahead
+        of its current location in the direction its facing.
+    """
+
+    def calculate_chase_target(self, pacman_pos: tuple[int, int],
+                               pacman_direction: Direction,
+                               blinky_pos: tuple[int, int] | None = None
+                               ) -> tuple[int, int]:
+        """Calculates the target coordinate for Pinky in the CHASE state.
+
+        Projects four cells ahead of Pacman's current position based on its
+            facing direction to create an ambush.
+
+        Args:
+            pacman_pos (tuple[int, int]): Current (x, y)
+                coordinates of Pacman.
+            pacman_direction (Direction): Current direction
+                Pacman is facing.
+            blinky_pos (tuple[int, int] | None, optional): Current (x, y)
+                coordinates of Blinky. Unused by Pinky.
+
+        Returns:
+            tuple[int, int]: The calculated target (x, y) coordinates.
+        """
+
+        prediction_distance = 4
+        prediction_position = pacman_pos
+
+        for iteration in range(prediction_distance):
+            prediction_position = self.get_next_position_on(
+                prediction_position,
+                pacman_direction)
+
+        return prediction_position
+
+
+class Clyde(Ghost):
+    """Represents the Clyde ghost entity.
+
+    Clyde directly pursues Pacman when farther than 8 cells away, but retreats
+        to his scatter target whenever Pacman gets too close.
+    """
+
+    def calculate_chase_target(
+        self,
+        pacman_pos: tuple[int, int],
+        pacman_direction: Direction,
+        blinky_pos: tuple[int, int] | None = None,
+    ) -> tuple[int, int]:
+        """Calculates the target coordinate for Clyde in the CHASE state.
+
+        Args:
+            pacman_pos (tuple[int, int]): Current (x, y)
+                coordinates of Pacman.
+            pacman_direction (Direction): Current direction
+                Pacman is facing. Unused by Clyde.
+            blinky_pos (tuple[int, int] | None, optional): Current (x, y)
+                coordinates of Blinky. Unused by Clyde.
+
+        Returns:
+            tuple[int, int]: Pacman's position if far away,
+                or Clyde's scatter target if within 8 cells.
+        """
+
+        chase_radius = 8
+        distance = ((self.pos[0] - pacman_pos[0]) ** 2
+                    + (self.pos[1] - pacman_pos[1]) ** 2)
+
+        if distance > chase_radius ** 2:
+            return pacman_pos
+        else:
+            return self.scatter_target
+
+
+class Inky(Ghost):
+    """Represents the Inky ghost entity.
+
+    Inky uses a complex flanking strategy combining Pacman's position and
+        direction with Blinky's current location.
+    """
+
+    def calculate_chase_target(
+        self,
+        pacman_pos: tuple[int, int],
+        pacman_direction: Direction,
+        blinky_pos: tuple[int, int] | None = None,
+    ) -> tuple[int, int]:
+        """Calculates the target coordinate for Inky in the CHASE state.
+
+        The algorithm is built in two steps:
+        1. Predicts two cells ahead of Pacman.
+        2. Creates a vector from Blinky's position to that point.
+            Doubling its magnitude.
+
+        Args:
+            pacman_pos (tuple[int, int]): Current (x, y)
+                coordinates of Pacman.
+            pacman_direction (Direction): Current direction
+                Pacman is facing.
+            blinky_pos (tuple[int, int] | None, optional): Current (x, y)
+                coordinates of Blinky. Required for vector calculation.
+
+        Returns:
+            tuple[int, int]: The calculated (x, y) target coordinates.
+        """
+
+        # Safeguard
+        if blinky_pos is None:
+            return pacman_pos
+
+        prediction_distance = 2
+        prediction_position = pacman_pos
+
+        for iteration in range(prediction_distance):
+            prediction_position = self.get_next_position_on(
+                prediction_position,
+                pacman_direction)
+
+        # Vector with origin in Blinky pos and destination in prediction pos.
+        vector = ((prediction_position[0] - blinky_pos[0]),
+                  (prediction_position[1] - blinky_pos[1]))
+
+        # Vector is simply a direction.
+        # From the blinky's position, that vector is added but doubled.
+        # The result is the chase target coordinates.
+        target = ((blinky_pos[0] + (vector[0] * 2)),
+                  (blinky_pos[1] + (vector[1] * 2)))
+
+        return target

@@ -144,6 +144,8 @@ class MazeAdapter():
             return False
         if next_pos == current_pos:
             return False
+        if not self.is_reachable(next_pos):
+            return False
 
         if next_pos[0] < 0 or next_pos[0] >= self.width:
             return False
