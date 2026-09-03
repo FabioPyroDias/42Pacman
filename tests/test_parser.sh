@@ -1,4 +1,8 @@
-mkdir -p config_tests
+PYTHON="pacman/bin/python3"
+SCRIPT="tests/test_parser.py"
+TEST_FOLDER="tests/config_tests"
+
+mkdir -p "$TEST_FOLDER"
 
 # Test 1: Everything is right
 echo '
@@ -22,7 +26,7 @@ echo '
     "points_per_ghost": 200,
     "seed": 42,
     "level_max_time": 90
-}' > config_tests/test1.json
+}' > "$TEST_FOLDER/test1.json"
 
 # Test 2: Missing keys
 echo '
@@ -45,7 +49,7 @@ echo '
     "points_per_ghost": 200,
     "seed": 42,
     "level_max_time": 90
-}' > config_tests/test2.json
+}' > "$TEST_FOLDER/test2.json"
 
 # Test 3: Missing levels
 echo '
@@ -64,7 +68,7 @@ echo '
     "points_per_ghost": 200,
     "seed": 42,
     "level_max_time": 90
-}' > config_tests/test3.json
+}' > "$TEST_FOLDER/test3.json"
 
 # Test 4: Wrong value in 'highscore_filename'
 echo '
@@ -88,7 +92,7 @@ echo '
     "points_per_ghost": 200,
     "seed": 42,
     "level_max_time": 90
-}' > config_tests/test4.json
+}' > "$TEST_FOLDER/test4.json"
 
 # Test 5: Empty value in 'highscore_filename'
 echo '
@@ -112,7 +116,7 @@ echo '
     "points_per_ghost": 200,
     "seed": 42,
     "level_max_time": 90
-}' > config_tests/test5.json
+}' > "$TEST_FOLDER/test5.json"
 
 # Test 6: Wrong 'width' in 'level'
 echo '
@@ -136,7 +140,7 @@ echo '
     "points_per_ghost": 200,
     "seed": 42,
     "level_max_time": 90
-}' > config_tests/test6.json
+}' > "$TEST_FOLDER/test6.json"
 
 # Test 7: Wrong value on 'width' in 'level'
 echo '
@@ -160,7 +164,7 @@ echo '
     "points_per_ghost": 200,
     "seed": 42,
     "level_max_time": 90
-}' > config_tests/test7.json
+}' > "$TEST_FOLDER/test7.json"
 
 # Test 8: Wrong 'height' in 'level'
 echo '
@@ -184,7 +188,7 @@ echo '
     "points_per_ghost": 200,
     "seed": 42,
     "level_max_time": 90
-}' > config_tests/test8.json
+}' > "$TEST_FOLDER/test8.json"
 
 # Test 9: Wrong value on 'height' in 'level'
 echo '
@@ -208,7 +212,7 @@ echo '
     "points_per_ghost": 200,
     "seed": 42,
     "level_max_time": 90
-}' > config_tests/test9.json
+}' > "$TEST_FOLDER/test9.json"
 
 # Test 10: Wrong 'number_of_pacgums' in 'level'
 echo '
@@ -232,7 +236,7 @@ echo '
     "points_per_ghost": 200,
     "seed": 42,
     "level_max_time": 90
-}' > config_tests/test10.json
+}' > "$TEST_FOLDER/test10.json"
 
 # Test 11: Wrong value on 'number_of_pacgums' in 'level'
 echo '
@@ -256,7 +260,7 @@ echo '
     "points_per_ghost": 200,
     "seed": 42,
     "level_max_time": 90
-}' > config_tests/test11.json
+}' > "$TEST_FOLDER/test11.json"
 
 # Test 12: Wrong value in 'lives'
 echo '
@@ -280,7 +284,7 @@ echo '
     "points_per_ghost": 200,
     "seed": 42,
     "level_max_time": 90
-}' > config_tests/test12.json
+}' > "$TEST_FOLDER/test12.json"
 
 # Test 13: Wrong value in 'lives'
 echo '
@@ -304,7 +308,7 @@ echo '
     "points_per_ghost": 200,
     "seed": 42,
     "level_max_time": 90
-}' > config_tests/test13.json
+}' > "$TEST_FOLDER/test13.json"
 
 # Test 14: Wrong value in 'points_per_pacgum'
 echo '
@@ -328,7 +332,7 @@ echo '
     "points_per_ghost": 200,
     "seed": 42,
     "level_max_time": 90
-}' > config_tests/test14.json
+}' > "$TEST_FOLDER/test14.json"
 
 # Test 15: Wrong value in 'points_per_pacgum'
 echo '
@@ -352,7 +356,7 @@ echo '
     "points_per_ghost": 200,
     "seed": 42,
     "level_max_time": 90
-}' > config_tests/test15.json
+}' > "$TEST_FOLDER/test15.json"
 
 # Test 16: Wrong value in 'points_per_super_pacgum'
 echo '
@@ -376,7 +380,7 @@ echo '
     "points_per_ghost": 200,
     "seed": 42,
     "level_max_time": 90
-}' > config_tests/test16.json
+}' > "$TEST_FOLDER/test16.json"
 
 # Test 17: Wrong value in 'points_per_super_pacgum'
 echo '
@@ -400,7 +404,7 @@ echo '
     "points_per_ghost": 200,
     "seed": 42,
     "level_max_time": 90
-}' > config_tests/test17.json
+}' > "$TEST_FOLDER/test17.json"
 
 # Test 18: Wrong value in 'points_per_ghost'
 echo '
@@ -424,7 +428,7 @@ echo '
     "points_per_ghost": 100,
     "seed": 42,
     "level_max_time": 90
-}' > config_tests/test18.json
+}' > "$TEST_FOLDER/test18.json"
 
 # Test 19: Wrong value in 'points_per_ghost'
 echo '
@@ -448,7 +452,7 @@ echo '
     "points_per_ghost": "200",
     "seed": 42,
     "level_max_time": 90
-}' > config_tests/test19.json
+}' > "$TEST_FOLDER/test19.json"
 
 # Test 20: Wrong value in 'seed'
 echo '
@@ -472,7 +476,7 @@ echo '
     "points_per_ghost": 200,
     "seed": -2,
     "level_max_time": 90
-}' > config_tests/test20.json
+}' > "$TEST_FOLDER/test20.json"
 
 # Test 21: Wrong value in 'seed'
 echo '
@@ -496,7 +500,7 @@ echo '
     "points_per_ghost": 200,
     "seed": "42",
     "level_max_time": 90
-}' > config_tests/test21.json
+}' > "$TEST_FOLDER/test21.json"
 
 # Test 22: Wrong value in 'level_max_time'
 echo '
@@ -520,7 +524,7 @@ echo '
     "points_per_ghost": 200,
     "seed": 42,
     "level_max_time": 200
-}' > config_tests/test22.json
+}' > "$TEST_FOLDER/test22.json"
 
 # Test 23: Wrong value in 'level_max_time'
 echo '
@@ -544,14 +548,14 @@ echo '
     "points_per_ghost": 200,
     "seed": 42,
     "level_max_time": "90"
-}' > config_tests/test23.json
+}' > "$TEST_FOLDER/test23.json"
 
 # Test 24: Empty file
-echo '' > config_tests/test24.json
+echo '' > "$TEST_FOLDER/test24.json"
 
 # Test 25: No permission
-echo '' > config_tests/test25.json
-chmod 111 config_tests/test25.json
+echo '' > "$TEST_FOLDER/test25.json"
+chmod 111 "$TEST_FOLDER/test25.json"
 
 # Test 26: Filled with commentaries
 echo '
@@ -577,7 +581,7 @@ echo '
     "points_per_ghost": 200,
     "seed": 42,
     "level_max_time": 90
-}' > config_tests/test26.json
+}' > "$TEST_FOLDER/test26.json"
 
 # Test 27: Wrongly formatted
 echo '
@@ -601,123 +605,123 @@ echo '
     "points_per_ghost": 200,
     "seed": 42,
     "level_max_time": 90
-}' > config_tests/test27.json
+}' > "$TEST_FOLDER/test27.json"
 
 # Test 28: JSON top level isn't object
-echo '42' > config_tests/test28.json
+echo '42' > "$TEST_FOLDER/test28.json"
 
 echo "Test 1 - All correct"
-pacman/bin/python3 test.py config_tests/test1.json
+PYTHONPATH=. $PYTHON $SCRIPT "$TEST_FOLDER/test1.json"
 echo -e
 
 echo "Test 2 - Missing key"
-pacman/bin/python3 test.py config_tests/test2.json
+PYTHONPATH=. $PYTHON $SCRIPT "$TEST_FOLDER/test2.json"
 echo -e
 
 echo "Test 3 - Missing levels"
-pacman/bin/python3 test.py config_tests/test3.json
+PYTHONPATH=. $PYTHON $SCRIPT "$TEST_FOLDER/test3.json"
 echo -e
 
 echo "Test 4 - Wrong value in 'highscore_filename'"
-pacman/bin/python3 test.py config_tests/test4.json
+PYTHONPATH=. $PYTHON $SCRIPT "$TEST_FOLDER/test4.json"
 echo -e
 
 echo "Test 5 - Empty value in 'highscore_filename'"
-pacman/bin/python3 test.py config_tests/test5.json
+PYTHONPATH=. $PYTHON $SCRIPT "$TEST_FOLDER/test5.json"
 echo -e
 
 echo "Test 6 - Wrong 'width' in 'level'"
-pacman/bin/python3 test.py config_tests/test6.json
+PYTHONPATH=. $PYTHON $SCRIPT "$TEST_FOLDER/test6.json"
 echo -e
 
 echo "Test 7 - Wrong value on 'width' in 'level'"
-pacman/bin/python3 test.py config_tests/test7.json
+PYTHONPATH=. $PYTHON $SCRIPT "$TEST_FOLDER/test7.json"
 echo -e
 
 echo "Test 8 - Wrong 'height' in 'level'"
-pacman/bin/python3 test.py config_tests/test8.json
+PYTHONPATH=. $PYTHON $SCRIPT "$TEST_FOLDER/test8.json"
 echo -e
 
 echo "Test 9 - Wrong value on 'height' in 'level'"
-pacman/bin/python3 test.py config_tests/test9.json
+PYTHONPATH=. $PYTHON $SCRIPT "$TEST_FOLDER/test9.json"
 echo -e
 
 echo "Test 10 - Wrong 'number_of_pacgums' in 'level'"
-pacman/bin/python3 test.py config_tests/test10.json
+PYTHONPATH=. $PYTHON $SCRIPT "$TEST_FOLDER/test10.json"
 echo -e
 
 echo "Test 11 - Wrong value on 'number_of_pacgums' in 'level'"
-pacman/bin/python3 test.py config_tests/test11.json
+PYTHONPATH=. $PYTHON $SCRIPT "$TEST_FOLDER/test11.json"
 echo -e
 
 echo "Test 12 - Wrong value in 'lives'"
-pacman/bin/python3 test.py config_tests/test12.json
+PYTHONPATH=. $PYTHON $SCRIPT "$TEST_FOLDER/test12.json"
 echo -e
 
 echo "Test 13 - Empty value in 'lives'"
-pacman/bin/python3 test.py config_tests/test13.json
+PYTHONPATH=. $PYTHON $SCRIPT "$TEST_FOLDER/test13.json"
 echo -e
 
 echo "Test 14 - Wrong value in 'points_per_pacgum'"
-pacman/bin/python3 test.py config_tests/test14.json
+PYTHONPATH=. $PYTHON $SCRIPT "$TEST_FOLDER/test14.json"
 echo -e
 
 echo "Test 15 - Empty value in 'points_per_pacgum'"
-pacman/bin/python3 test.py config_tests/test15.json
+PYTHONPATH=. $PYTHON $SCRIPT "$TEST_FOLDER/test15.json"
 echo -e
 
 echo "Test 16 - Wrong value in 'points_per_super_pacgum'"
-pacman/bin/python3 test.py config_tests/test16.json
+PYTHONPATH=. $PYTHON $SCRIPT "$TEST_FOLDER/test16.json"
 echo -e
 
 echo "Test 17 - Wrong value in 'points_per_super_pacgum'"
-pacman/bin/python3 test.py config_tests/test17.json
+PYTHONPATH=. $PYTHON $SCRIPT "$TEST_FOLDER/test17.json"
 echo -e
 
 echo "Test 18 - Wrong value in 'points_per_ghost'"
-pacman/bin/python3 test.py config_tests/test18.json
+PYTHONPATH=. $PYTHON $SCRIPT "$TEST_FOLDER/test18.json"
 echo -e
 
 echo "Test 19 - Wrong value in 'points_per_ghost'"
-pacman/bin/python3 test.py config_tests/test19.json
+PYTHONPATH=. $PYTHON $SCRIPT "$TEST_FOLDER/test19.json"
 echo -e
 
 echo "Test 20 - Wrong value in 'seed'"
-pacman/bin/python3 test.py config_tests/test20.json
+PYTHONPATH=. $PYTHON $SCRIPT "$TEST_FOLDER/test20.json"
 echo -e
 
 echo "Test 21 - Wrong value in 'seed'"
-pacman/bin/python3 test.py config_tests/test21.json
+PYTHONPATH=. $PYTHON $SCRIPT "$TEST_FOLDER/test21.json"
 echo -e
 
 echo "Test 22 - Wrong value in 'level_max_time'"
-pacman/bin/python3 test.py config_tests/test22.json
+PYTHONPATH=. $PYTHON $SCRIPT "$TEST_FOLDER/test22.json"
 echo -e
 
 echo "Test 23 - Wrong value in 'level_max_time'"
-pacman/bin/python3 test.py config_tests/test23.json
+PYTHONPATH=. $PYTHON $SCRIPT "$TEST_FOLDER/test23.json"
 echo -e
 
 echo "Test 24 - Empty file"
-pacman/bin/python3 test.py config_tests/test24.json
+PYTHONPATH=. $PYTHON $SCRIPT "$TEST_FOLDER/test24.json"
 echo -e
 
 echo "Test 25 - No permission"
-pacman/bin/python3 test.py config_tests/test25.json
+PYTHONPATH=. $PYTHON $SCRIPT "$TEST_FOLDER/test25.json"
 echo -e
 
 echo "Test 26 - Filled with commentaries, no error"
-pacman/bin/python3 test.py config_tests/test26.json
+PYTHONPATH=. $PYTHON $SCRIPT "$TEST_FOLDER/test26.json"
 echo -e
 
 echo "Test 27 - Wrongly formatted"
-pacman/bin/python3 test.py config_tests/test27.json
+PYTHONPATH=. $PYTHON $SCRIPT "$TEST_FOLDER/test27.json"
 echo -e
 
 echo "Test 28 - JSON top level isn't object"
-pacman/bin/python3 test.py config_tests/test28.json
+PYTHONPATH=. $PYTHON $SCRIPT "$TEST_FOLDER/test28.json"
 echo -e
 
 echo "Test 29 - No file"
-pacman/bin/python3 test.py config_tests/non_existent.json
+PYTHONPATH=. $PYTHON $SCRIPT "$TEST_FOLDER/non_existent.json"
 echo -e
