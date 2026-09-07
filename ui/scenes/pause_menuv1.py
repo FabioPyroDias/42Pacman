@@ -18,7 +18,7 @@ class PauseMenu(BaseRender):
         if self.__updated:
             return
         self._pause_backgroud = pygame.Surface((self._win_size_x * 0.3,
-                                                self._win_size_y * 0.1))
+                                                self._win_size_y * 0.3))
 
         self._pause_size_x = self._pause_backgroud.get_width()
         self._pause_size_y = self._pause_backgroud.get_height()
@@ -30,7 +30,7 @@ class PauseMenu(BaseRender):
             return
         self._pause_title_font = pygame.font.SysFont(
             None,
-            int(self._pause_size_x * 0.3)
+            int(self._pause_size_y * 0.1)
             )
         self._pause_text_font = pygame.font.SysFont(
             None,
@@ -61,7 +61,7 @@ class PauseMenu(BaseRender):
             self._pause_title,
             self._pause_title.get_rect(
                 center=(self._pause_size_x // 2,
-                        self._pause_size_y // 2)
+                        self._pause_size_y // 10)
             )
         )
 

@@ -1,18 +1,20 @@
 from ui import GUI
+# from ui.gui import NGUI
 from maze import MazeAdapter
 from game import GameState
-from consts import CELL_SIZE
 import pygame
 import random
 import time
 
-maze = MazeAdapter(seed=42)
+maze = MazeAdapter(size=(15, 15), seed=42)
 for line in maze.maze:
     print(line)
-gui = GUI("TEST", (len(maze.maze) * CELL_SIZE,
-                   len(maze.maze[0]) * CELL_SIZE))
+
+
 running = True
 state = GameState("menu", maze, pygame.time.Clock())
+ngui = GUI((800, 600), "TEST", state, (len(maze.maze),
+                                       len(maze.maze[0])))
 
 frame_duration = 1 / 60  # fps alvo
 elapsed = 0  # usado para travar fps
@@ -22,11 +24,9 @@ while running:
         time.sleep(frame_duration - elapsed)
     state.clock.tick()  # debug (tirar depois)
     current_time = time.perf_counter()
-    if not state.in_game and current_time - last_blink >= 0.5:
-        last_blink = current_time
-        state.blink = not state.blink
-    gui.draw(game_state=state)
-    for event in gui.get_event():
+
+    ngui.draw()
+    for event in ngui.get_event():
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.KEYDOWN:
@@ -59,7 +59,27 @@ while running:
                         state.blinky.direction = 'L'
 
                     case pygame.K_d:
-                        state.player_alive = not state.player_alive
+                        state.player.alive = not state.player.alive
+
+                    case pygame.K_f:
+                        state.blinky.alive = not state.blinky.alive
+                        state.pinky.alive = not state.pinky.alive
+                        state.inky.alive = not state.inky.alive
+                        state.clyde.alive = not state.clyde.alive
+
+                    case pygame.K_s:
+                        state.flashing = False
+                        state.blinky.scared = True
+                        state.inky.scared = True
+                        state.pinky.scared = True
+                        state.clyde.scared = True
+                        state.scared_start_time = time.perf_counter()
+
+                    case pygame.K_g:
+                        if state.active_screen != "game_over":
+                            state.active_screen = "game_over"
+                        else:
+                            state.active_screen = "game"
 
                     case pygame.K_ESCAPE:
                         state.active_screen = "menu"
@@ -69,6 +89,9 @@ while running:
                         maze.regenerate(random.randint(-100000, 100000))
                         print("R")
 
+                    case pygame.K_SPACE:
+                        state.active_screen = "pause" if state.active_screen != "pause" else "game"
+
             else:
                 match event.key:
                     case pygame.K_SPACE:
@@ -77,9 +100,19 @@ while running:
                         print("GAME")
                     case pygame.K_i:
                         state.active_screen = "instructions"
+                    case pygame.K_h:
+                        state.active_screen = "highscores"
                     case pygame.K_ESCAPE:
-                        running = False
+                        if state.active_screen != "menu":
+                            state.active_screen = "menu"
+                        else:
+                            running = False
                         print("ESC")
-
+    if current_time - state.scared_start_time >= state.scared_time:
+        state.blinky.scared = False
+        state.inky.scared = False
+        state.pinky.scared = False
+        state.clyde.scared = False
+        state.flashing = False
     elapsed = time.perf_counter() - current_time
-gui.quit()
+pygame.quit()
