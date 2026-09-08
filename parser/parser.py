@@ -63,7 +63,7 @@ def parser_configuration_file(path: str) -> dict[str, Any]:
         error_message = f"File {path} not found."
     except PermissionError:
         error_message = f"No permission for {path}."
-    except (json.JSONDecodeError, TypeError):
+    except (json.JSONDecodeError, TypeError, AttributeError):
         error_message = "JSON file  wrongly formatted."
     except (OSError, ValueError) as error:
         error_message = f"Unexpected error - {error}"
@@ -210,6 +210,10 @@ def correct_configs(wrong_configs: dict[str, Any]) -> dict[str, Any]:
     if not wrong_configs:
         return SAFE_DEFAULTS
 
+    # If the JSON file isn't a dictionary
+    if not isinstance(wrong_configs, dict):
+        return SAFE_DEFAULTS
+
     corrected_configs = {}
 
     # Correcting "highscore_filename"
@@ -232,10 +236,14 @@ def correct_configs(wrong_configs: dict[str, Any]) -> dict[str, Any]:
             while index < len(level):
                 current_level = {}
 
-                value_width = level[index].get("width", "")
-                value_height = level[index].get("height", "")
+                level_entry = {}
+                if isinstance(level[index], dict):
+                    level_entry = level[index]
+
+                value_width = level_entry.get("width", "")
+                value_height = level_entry.get("height", "")
                 value_number_of_pacgums = (
-                    level[index].get("number_of_pacgums", ""))
+                    level_entry.get("number_of_pacgums", ""))
 
                 if (not isinstance(value_width, int)
                    or value_width < MIN_DIMENSIONS
