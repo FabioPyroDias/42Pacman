@@ -32,10 +32,6 @@ class PauseMenu(BaseRender):
             None,
             int(self._pause_size_x * 0.3)
             )
-        self._pause_text_font = pygame.font.SysFont(
-            None,
-            int(self._pause_size_y * 0.02)
-            )
         self.__fonts_loaded = True
 
     def __load_texts(self) -> None:
@@ -44,12 +40,6 @@ class PauseMenu(BaseRender):
             return
         self._pause_title = self._pause_title_font.render(
             "PAUSED",
-            0,
-            COMMOM_TEXT_COLOR
-        )
-
-        self._pause_text = self._pause_text_font.render(
-            "SPACE TO CONTINUE",
             0,
             COMMOM_TEXT_COLOR
         )
