@@ -151,7 +151,7 @@ if __name__ == "__main__":
                 pattern_42.append((col, row))
 
     print("Pattern 42: ")
-    for cell in pattern_42:
-        print(f"Cell: {cell}")
+    for cell_pattern in pattern_42:
+        print(f"Cell: {cell_pattern}")
     print()
     print_grid(maze)
