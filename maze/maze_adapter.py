@@ -61,9 +61,9 @@ class MazeAdapter():
         self.width = size[0]
         self.height = size[1]
 
-        self.maze = []
+        self.maze: list[list[Cell]] = []
         for row in range(self.height):
-            current_row = []
+            current_row: list[Cell] = []
             for col in range(self.width):
                 current_cell = maze[row][col]
                 current_row.append(Cell(
@@ -99,7 +99,17 @@ class MazeAdapter():
         """
 
         self.__mazegenerator.generate(seed)
-        self.maze = self.__mazegenerator.maze
+        self.maze: list[list[Cell]] = []
+        for row in range(self.height):
+            current_row: list[Cell] = []
+            for col in range(self.width):
+                current_cell = self.__mazegenerator.maze[row][col]
+                current_row.append(Cell(
+                    (current_cell >> 0) & 1,
+                    (current_cell >> 1) & 1,
+                    (current_cell >> 2) & 1,
+                    (current_cell >> 3) & 1))
+            self.maze.append(current_row)
 
     def is_reachable(self, pos: tuple[int, int]) -> bool:
         """Checks whether a given grid position is accessible.

@@ -1,5 +1,6 @@
 from ui import GUI
 # from ui.gui import NGUI
+from enums import Direction, GhostState
 from maze import MazeAdapter
 from game import GameState
 import pygame
@@ -7,16 +8,13 @@ import random
 import time
 
 maze = MazeAdapter(size=(15, 15), seed=42)
-for line in maze.maze:
-    print(line)
-
 
 running = True
 state = GameState("menu", maze, pygame.time.Clock())
 ngui = GUI((800, 600), "TEST", state, (len(maze.maze),
                                        len(maze.maze[0])))
 
-frame_duration = 1 / 60  # fps alvo
+frame_duration = 1 / 30  # fps alvo
 elapsed = 0  # usado para travar fps
 last_blink = time.perf_counter()
 while running:
@@ -34,46 +32,56 @@ while running:
             if state.in_game:
                 match event.key:
                     case pygame.K_UP:
-                        state.player.direction = 'N'
-                        state.inky.direction = 'N'
-                        state.pinky.direction = 'N'
-                        state.clyde.direction = 'N'
-                        state.blinky.direction = 'N'
+                        state.player.direction = Direction.NORTH
+                        state.inky.direction = Direction.NORTH
+                        state.pinky.direction = Direction.NORTH
+                        state.clyde.direction = Direction.NORTH
+                        state.blinky.direction = Direction.NORTH
                     case pygame.K_LEFT:
-                        state.player.direction = 'W'
-                        state.inky.direction = 'W'
-                        state.pinky.direction = 'W'
-                        state.clyde.direction = 'W'
-                        state.blinky.direction = 'W'
+                        state.player.direction = Direction.WEST
+                        state.inky.direction = Direction.WEST
+                        state.pinky.direction = Direction.WEST
+                        state.clyde.direction = Direction.WEST
+                        state.blinky.direction = Direction.WEST
                     case pygame.K_DOWN:
-                        state.player.direction = 'S'
-                        state.inky.direction = 'S'
-                        state.pinky.direction = 'S'
-                        state.clyde.direction = 'S'
-                        state.blinky.direction = 'S'
+                        state.player.direction = Direction.SOUTH
+                        state.inky.direction = Direction.SOUTH
+                        state.pinky.direction = Direction.SOUTH
+                        state.clyde.direction = Direction.SOUTH
+                        state.blinky.direction = Direction.SOUTH
                     case pygame.K_RIGHT:
-                        state.player.direction = 'L'
-                        state.inky.direction = 'L'
-                        state.pinky.direction = 'L'
-                        state.clyde.direction = 'L'
-                        state.blinky.direction = 'L'
+                        next_pos = state.player.get_next_position_on(state.player.pos, Direction.EAST)
+                        while state.player.pos != next_pos:
+                            state.player.set_next_direction(Direction.EAST)
+                            state.player.update(0.006, state.maze)
+                            ngui.draw()
+                        state.inky.direction = Direction.EAST
+                        state.pinky.direction = Direction.EAST
+                        state.clyde.direction = Direction.EAST
+                        state.blinky.direction = Direction.EAST
 
                     case pygame.K_d:
-                        state.player.alive = not state.player.alive
+                        state.alive = not state.alive
 
                     case pygame.K_f:
-                        state.blinky.alive = not state.blinky.alive
-                        state.pinky.alive = not state.pinky.alive
-                        state.inky.alive = not state.inky.alive
-                        state.clyde.alive = not state.clyde.alive
+                        state.blinky.state = GhostState.EATEN
+                        state.pinky.state = GhostState.EATEN
+                        state.inky.state = GhostState.EATEN
+                        state.clyde.state = GhostState.EATEN
 
                     case pygame.K_s:
                         state.flashing = False
-                        state.blinky.scared = True
-                        state.inky.scared = True
-                        state.pinky.scared = True
-                        state.clyde.scared = True
+                        state.blinky.state = GhostState.FRIGHTENED
+                        state.inky.state = GhostState.FRIGHTENED
+                        state.pinky.state = GhostState.FRIGHTENED
+                        state.clyde.state = GhostState.FRIGHTENED
                         state.scared_start_time = time.perf_counter()
+
+                    case pygame.K_w:
+                        state.blinky.state = GhostState.CHASE
+                        state.inky.state = GhostState.CHASE
+                        state.pinky.state = GhostState.CHASE
+                        state.clyde.state = GhostState.CHASE
 
                     case pygame.K_g:
                         if state.active_screen != "game_over":
@@ -109,10 +117,10 @@ while running:
                             running = False
                         print("ESC")
     if current_time - state.scared_start_time >= state.scared_time:
-        state.blinky.scared = False
-        state.inky.scared = False
-        state.pinky.scared = False
-        state.clyde.scared = False
+        state.blinky.state = GhostState.CHASE
+        state.inky.state = GhostState.CHASE
+        state.pinky.state = GhostState.CHASE
+        state.clyde.state = GhostState.CHASE
         state.flashing = False
     elapsed = time.perf_counter() - current_time
 pygame.quit()

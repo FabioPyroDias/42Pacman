@@ -1,6 +1,8 @@
 import pygame
 from time import perf_counter
-from game import GameState, Entities
+from enums import Direction, GhostState
+from entities import MovableEntity
+from game import GameState
 from maze import Cell
 from .base_render import BaseRender
 from consts import (
@@ -30,6 +32,38 @@ class Gameplay(BaseRender):
         self.__assets_loaded = False
         self.__updated = False
         self.__last_flash = 0.0
+        self.__alive_sprites_y = {
+            self._game_state.player: 0,
+            self._game_state.blinky: 0,
+            self._game_state.inky: 0,
+            self._game_state.pinky: 0,
+            self._game_state.clyde: 0}
+        self.__alive_sprites_x = {
+            self._game_state.player: 0,
+            self._game_state.blinky: 0,
+            self._game_state.inky: 0,
+            self._game_state.pinky: 0,
+            self._game_state.clyde: 0}
+
+        self.__dead_sprites_y = {
+            self._game_state.player: PACMAN_DEATH_SPRITE_START_INDEX_Y,
+            self._game_state.blinky: 0,
+            self._game_state.inky: 0,
+            self._game_state.pinky: 0,
+            self._game_state.clyde: 0}
+        self.__dead_sprites_x = {
+            self._game_state.player: 0,
+            self._game_state.blinky: 0,
+            self._game_state.inky: 0,
+            self._game_state.pinky: 0,
+            self._game_state.clyde: 0}
+        now = perf_counter()
+        self.__last_frame_time = {
+            self._game_state.player: now,
+            self._game_state.blinky: now,
+            self._game_state.inky: now,
+            self._game_state.pinky: now,
+            self._game_state.clyde: now}
 
     def __load_assets(self) -> None:
         if self.__assets_loaded:
@@ -89,33 +123,26 @@ class Gameplay(BaseRender):
 
     def _draw_cell(self, cell: Cell, coord: Coordinates) -> None:
         x, y = coord
-        close_cell = True
-        for direction in cell:
-            if cell[direction]:
-                match direction:
-                    case "N":
-                        self._map_surface.blit(
-                            self._ns_wall,
-                            (x - WALL_THICKNESS, y))
-                    case "L":
-                        self._map_surface.blit(
-                            self._lw_wall,
-                            (x + (CELL_SIZE - WALL_THICKNESS),
-                             y - WALL_THICKNESS))
-                    case "S":
-                        self._map_surface.blit(
-                            self._ns_wall,
-                            (x - WALL_THICKNESS,
-                             y + (CELL_SIZE - WALL_THICKNESS)))
-                    case "W":
-                        self._map_surface.blit(
-                            self._lw_wall,
-                            (x, y - WALL_THICKNESS))
-                    case _:
-                        pass
-            else:
-                close_cell = False
-        if close_cell:
+        for i in range(4):
+            if cell.n:
+                self._map_surface.blit(
+                    self._ns_wall,
+                    (x - WALL_THICKNESS, y))
+            if cell.e:
+                self._map_surface.blit(
+                    self._lw_wall,
+                    (x + (CELL_SIZE - WALL_THICKNESS),
+                        y - WALL_THICKNESS))
+            if cell.s:
+                self._map_surface.blit(
+                    self._ns_wall,
+                    (x - WALL_THICKNESS,
+                        y + (CELL_SIZE - WALL_THICKNESS)))
+            if cell.w:
+                self._map_surface.blit(
+                    self._lw_wall,
+                    (x, y - WALL_THICKNESS))
+        if cell.e and cell.w and cell.n and cell.s:
             self._map_surface.blit(self._backgroud_42,
                                    (x + WALL_THICKNESS,
                                     y + WALL_THICKNESS))
@@ -137,9 +164,9 @@ class Gameplay(BaseRender):
                 final_line = True
 
     def _render_pacman(self) -> None:
-        if self._game_state.player.alive:
-            self._game_state.player.dead_sprite_x = 0
-            self._game_state.player.dead_sprite_y = (
+        if self._game_state.alive:
+            self.__dead_sprites_x[self._game_state.player] = 0
+            self.__dead_sprites_y[self._game_state.player] = (
                 PACMAN_DEATH_SPRITE_START_INDEX_Y
                 )
             self._render_entitie(self.__pacman_sprites,
@@ -165,14 +192,14 @@ class Gameplay(BaseRender):
                 self._game_state.flashing = not self._game_state.flashing
                 self.__last_flash = now
 
-        if self._game_state.clyde.scared:
+        if self._game_state.clyde.state == GhostState.FRIGHTENED:
             self._render_scared_ghost(
                     self.__scared_ghost_sprite,
                     self._game_state.clyde,
                     GHOST_SPRITE_LAST_INDEX_X
                 )
 
-        elif self._game_state.clyde.alive:
+        elif self._game_state.clyde.state == GhostState.CHASE:
             self._render_entitie(self.__clyde_sprites,
                                  self._game_state.clyde,
                                  GHOST_SPRITE_LAST_INDEX_X)
@@ -182,14 +209,14 @@ class Gameplay(BaseRender):
                                  self._game_state.clyde,
                                  DEAD_GHOST_SPRITE_LAST_INDEX_X)
 
-        if self._game_state.inky.scared:
+        if self._game_state.inky.state == GhostState.FRIGHTENED:
             self._render_scared_ghost(
                     self.__scared_ghost_sprite,
                     self._game_state.inky,
                     GHOST_SPRITE_LAST_INDEX_X
                 )
 
-        elif self._game_state.inky.alive:
+        elif self._game_state.inky.state == GhostState.CHASE:
             self._render_entitie(self.__inky_sprites,
                                  self._game_state.inky,
                                  GHOST_SPRITE_LAST_INDEX_X)
@@ -199,14 +226,14 @@ class Gameplay(BaseRender):
                                  self._game_state.inky,
                                  DEAD_GHOST_SPRITE_LAST_INDEX_X)
 
-        if self._game_state.blinky.scared:
+        if self._game_state.blinky.state == GhostState.FRIGHTENED:
             self._render_scared_ghost(
                     self.__scared_ghost_sprite,
                     self._game_state.blinky,
                     GHOST_SPRITE_LAST_INDEX_X
                 )
 
-        elif self._game_state.blinky.alive:
+        elif self._game_state.blinky.state == GhostState.CHASE:
             self._render_entitie(self.__blinky_sprites,
                                  self._game_state.blinky,
                                  GHOST_SPRITE_LAST_INDEX_X)
@@ -216,14 +243,14 @@ class Gameplay(BaseRender):
                                  self._game_state.blinky,
                                  DEAD_GHOST_SPRITE_LAST_INDEX_X)
 
-        if self._game_state.pinky.scared:
+        if self._game_state.pinky.state == GhostState.FRIGHTENED:
             self._render_scared_ghost(
                     self.__scared_ghost_sprite,
                     self._game_state.pinky,
                     GHOST_SPRITE_LAST_INDEX_X
                 )
 
-        elif self._game_state.pinky.alive:
+        elif self._game_state.pinky.state == GhostState.CHASE:
             self._render_entitie(self.__pinky_sprites,
                                  self._game_state.pinky,
                                  GHOST_SPRITE_LAST_INDEX_X)
@@ -241,13 +268,29 @@ class Gameplay(BaseRender):
                                 6 * CELL_SIZE + WALL_OFFSET))
 
     def _render_scared_ghost(self, sprite: pygame.Surface,
-                             entitie: Entities, last_index_x: int) -> None:
+                             entity: MovableEntity,
+                             last_index_x: int) -> None:
+        progress_tuple: tuple[float, float]
+        match entity.direction:
+            case Direction.NORTH:
+                progress_tuple = (0.0, -entity.move_progress)
+            case Direction.EAST:
+                progress_tuple = (entity.move_progress, 0.0)
+            case Direction.SOUTH:
+                progress_tuple = (0.0, entity.move_progress)
+            case Direction.WEST:
+                progress_tuple = (-entity.move_progress, 0.0)
+            case _:
+                raise ValueError("Invalid direction")
+
         if self._game_state.flashing:
             self._map_surface.blit(
                 sprite,
-                (entitie.pos[0] * CELL_SIZE + WALL_OFFSET,
-                 entitie.pos[1] * CELL_SIZE + WALL_OFFSET),
-                (entitie.sprite_x * SPRITE_SIZE,
+                ((entity.pos[0]
+                  + progress_tuple[0]) * CELL_SIZE + WALL_OFFSET,
+                 (entity.pos[1]
+                  + progress_tuple[1]) * CELL_SIZE + WALL_OFFSET),
+                (self.__alive_sprites_x[entity] * SPRITE_SIZE,
                  FLASHING_GHOST_SPRITE_INDEX_Y * SPRITE_SIZE,
                  SPRITE_SIZE, SPRITE_SIZE)
                  )
@@ -255,89 +298,102 @@ class Gameplay(BaseRender):
         else:
             self._map_surface.blit(
                 sprite,
-                (entitie.pos[0] * CELL_SIZE + WALL_OFFSET,
-                 entitie.pos[1] * CELL_SIZE + WALL_OFFSET),
-                (entitie.sprite_x * SPRITE_SIZE,
+                ((entity.pos[0]
+                  + progress_tuple[0]) * CELL_SIZE + WALL_OFFSET,
+                 (entity.pos[1]
+                  + progress_tuple[1]) * CELL_SIZE + WALL_OFFSET),
+                (self.__alive_sprites_x[entity] * SPRITE_SIZE,
                  SCARED_GHOST_SPRITE_INDEX_Y * SPRITE_SIZE,
                  SPRITE_SIZE, SPRITE_SIZE)
                  )
 
         now = perf_counter()
-        if not (now - entitie.last_frame_time >= self._animation_fps):
+        if not (now - self.__last_frame_time[entity] >= self._animation_fps):
             return
-        entitie.last_frame_time = now
-        if entitie.sprite_x == last_index_x:
-            entitie.sprite_x = 0
+        self.__last_frame_time[entity] = now
+        if self.__alive_sprites_x[entity] == last_index_x:
+            self.__alive_sprites_x[entity] = 0
         else:
-            entitie.sprite_x += 1
+            self.__alive_sprites_x[entity] += 1
 
     def _render_entitie(self, sprite: pygame.Surface,
-                        entitie: Entities, last_index_x: int) -> None:
-        match entitie.direction:
-            case 'N':
-                entitie.sprite_y = ENTITIES_UP_SPRITE_INDEX_Y
-            case 'L':
-                entitie.sprite_y = ENTITIES_RIGHT_SPRITE_INDEX_Y
-            case 'W':
-                entitie.sprite_y = ENTITIES_LEFT_SPRITE_INDEX_Y
-            case 'S':
-                entitie.sprite_y = ENTITIES_DOWN_SPRITE_INDEX_Y
+                        entity: MovableEntity, last_index_x: int) -> None:
+        progress_tuple: tuple[float, float]
+        match entity.direction:
+            case Direction.NORTH:
+                self.__alive_sprites_y[entity] = ENTITIES_UP_SPRITE_INDEX_Y
+                progress_tuple = (0.0, -entity.move_progress)
+            case Direction.EAST:
+                self.__alive_sprites_y[entity] = ENTITIES_RIGHT_SPRITE_INDEX_Y
+                progress_tuple = (entity.move_progress, 0.0)
+            case Direction.WEST:
+                self.__alive_sprites_y[entity] = ENTITIES_LEFT_SPRITE_INDEX_Y
+                progress_tuple = (-entity.move_progress, 0.0)
+            case Direction.SOUTH:
+                self.__alive_sprites_y[entity] = ENTITIES_DOWN_SPRITE_INDEX_Y
+                progress_tuple = (0.0, entity.move_progress)
+            case _:
+                raise ValueError("Invalid direction")
 
-        if not entitie.alive:
+        if not self._game_state.alive: # trocar para entity
             self._map_surface.blit(
                 sprite,
-                (entitie.pos[0] * CELL_SIZE + WALL_OFFSET,
-                 entitie.pos[1] * CELL_SIZE + WALL_OFFSET),
+                ((entity.pos[0]
+                  + progress_tuple[0]) * CELL_SIZE + WALL_OFFSET,
+                 (entity.pos[1]
+                  + progress_tuple[1]) * CELL_SIZE + WALL_OFFSET),
                 (0 * SPRITE_SIZE,
-                 entitie.sprite_y * SPRITE_SIZE,
+                 self.__alive_sprites_y[entity] * SPRITE_SIZE,
                  SPRITE_SIZE, SPRITE_SIZE)
                 )
             return
 
         self._map_surface.blit(
             sprite,
-            (entitie.pos[0] * CELL_SIZE + WALL_OFFSET,
-             entitie.pos[1] * CELL_SIZE + WALL_OFFSET),
-            (entitie.sprite_x * SPRITE_SIZE,
-             entitie.sprite_y * SPRITE_SIZE,
+            ((entity.pos[0]
+              + progress_tuple[0]) * CELL_SIZE + WALL_OFFSET,
+             (entity.pos[1]
+              + progress_tuple[1]) * CELL_SIZE + WALL_OFFSET),
+            (self.__alive_sprites_x[entity] * SPRITE_SIZE,
+             self.__alive_sprites_y[entity] * SPRITE_SIZE,
              SPRITE_SIZE, SPRITE_SIZE)
             )
 
         now = perf_counter()
-        if not (now - entitie.last_frame_time >= self._animation_fps):
+        if not (now - self.__last_frame_time[entity] >= self._animation_fps):
             return
-        entitie.last_frame_time = now
-        if entitie.sprite_x == last_index_x:
-            entitie.sprite_x = 0
+        self.__last_frame_time[entity] = now
+        if self.__alive_sprites_x[entity] == last_index_x:
+            self.__alive_sprites_x[entity] = 0
         else:
-            entitie.sprite_x += 1
+            self.__alive_sprites_x[entity] += 1
 
     def _render_entitie_death(self, sprite: pygame.Surface,
-                              entitie: Entities,
+                              entity: MovableEntity,
                               last_index_x: int,
                               last_index_y: int,
                               start_index_y: int) -> None:
         self._map_surface.blit(
             sprite,
-            (entitie.pos[0] * CELL_SIZE + WALL_OFFSET,
-             entitie.pos[1] * CELL_SIZE + WALL_OFFSET),
-            (entitie.dead_sprite_x * SPRITE_SIZE,
-             entitie.dead_sprite_y * SPRITE_SIZE,
+            (entity.pos[0] * CELL_SIZE + WALL_OFFSET,
+             entity.pos[1] * CELL_SIZE + WALL_OFFSET),
+            (self.__dead_sprites_x[entity] * SPRITE_SIZE,
+             self.__dead_sprites_y[entity] * SPRITE_SIZE,
              SPRITE_SIZE, SPRITE_SIZE)
              )
 
         now = perf_counter()
-        if not (now - entitie.last_frame_time >= self._animation_fps):
+        if not (now - self.__last_frame_time[entity] >= self._animation_fps):
             return
-        entitie.last_frame_time = now
-        if entitie.dead_sprite_x == last_index_x:
-            entitie.dead_sprite_x = 0
-            if entitie.dead_sprite_y == last_index_y:
-                entitie.dead_sprite_y = start_index_y
+        self.__last_frame_time[entity] = now
+        if self.__dead_sprites_x[entity] == last_index_x:
+            self.__dead_sprites_x[entity] = 0
+            if self.__dead_sprites_y[entity] == last_index_y:
+                self.__dead_sprites_y[entity] = start_index_y
             else:
-                entitie.dead_sprite_y += 1
+                self.__dead_sprites_y[entity] += 1
         else:
-            entitie.dead_sprite_x += 1
+            self.__dead_sprites_x[entity] += 1
 
     def render_gameplay(self) -> None:
         self.__update()
@@ -345,5 +401,5 @@ class Gameplay(BaseRender):
         self._render_map()
         self._render_pacgums()
         self._render_pacman()
-        if self._game_state.player.alive:
+        if self._game_state.alive:
             self._render_ghosts()
