@@ -1,6 +1,11 @@
 import pygame
+
+from entities.collectable import Collectable
+from entities.ghost import Ghost
+from entities.pacman import Pacman
+from enums import GameState
+from maze.maze_adapter import MazeAdapter
 from .base_render import BaseRender
-from game.game_state import GameState
 from consts import (
     COMMOM_TEXT_COLOR, BACKGROUND_COLOR, INSTRUCTIONS_LIST,
     EXPECTECTED_INSTRUCTIONS_LEN
@@ -15,8 +20,11 @@ INSTRUCTIONS = [first + "."*abs(
 
 class Instructions(BaseRender):
     def __init__(self, win_size: tuple[int, int], title: str,
-                 game_state: GameState) -> None:
-        super().__init__(win_size, title, game_state)
+                 pacman: Pacman, ghosts: list[Ghost],
+                 collectables: dict[tuple[int, int], Collectable],
+                 game_state: GameState, maze: MazeAdapter, *args) -> None:
+        super().__init__(win_size, title, pacman, ghosts,
+                         collectables, game_state, maze, *args)
         self.__updated = False
         self.__fonts_loaded = False
         self.__text_loaded = False
@@ -51,12 +59,10 @@ class Instructions(BaseRender):
 
     def __load_text(self) -> None:
         self.__load_fonts()
-        if hasattr(self, "_subtitle"):
-            self.__text_loaded = False
         if self.__text_loaded:
             return
 
-        self._subtitle = self._subtitle_font.render(
+        self._subtitle_instructions = self._subtitle_font.render(
                 "INSTRUCTIONS",
                 0,
                 COMMOM_TEXT_COLOR
@@ -74,8 +80,8 @@ class Instructions(BaseRender):
 
     def _render_instructions_subtitle(self) -> None:
         self._win.blit(
-            self._subtitle,
-            self._subtitle.get_rect(
+            self._subtitle_instructions,
+            self._subtitle_instructions.get_rect(
                 center=(self._win_size_x // 2,
                         self._win_size_y // 6)
                 ))

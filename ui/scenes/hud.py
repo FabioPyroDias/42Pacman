@@ -1,6 +1,11 @@
 import pygame
+
+from entities.collectable import Collectable
+from entities.ghost import Ghost
+from entities.pacman import Pacman
+from enums import GameState
+from maze.maze_adapter import MazeAdapter
 from .base_render import BaseRender
-from game import GameState
 from consts import (
     CELL_SIZE, LIFE_ICON_SPRITE_PATH, WALL_OFFSET,
     LIFE_ICON_SPACING, COMMOM_TEXT_COLOR, MAX_SCORE_DIGITS
@@ -9,8 +14,11 @@ from consts import (
 
 class HUD(BaseRender):
     def __init__(self, win_size: tuple[int, int], title: str,
-                 game_state: GameState) -> None:
-        super().__init__(win_size, title, game_state)
+                 pacman: Pacman, ghosts: list[Ghost],
+                 collectables: dict[tuple[int, int], Collectable],
+                 game_state: GameState, maze: MazeAdapter, *args) -> None:
+        super().__init__(win_size, title, pacman, ghosts,
+                         collectables, game_state, maze, *args)
         self.__assets_loaded = False
         self.__fonts_loaded = False
         self.__text_loaded = False
@@ -38,23 +46,25 @@ class HUD(BaseRender):
 
         self.__fonts_loaded = True
 
-    def __load_text(self) -> None:
+    def __load_text(self, level: int, score: int) -> None:
         self.__load_fonts()
-        if self.__current_level != self._game_state.level:
+        if self.__current_level != level:
             self._level_title = self._subtitle_font.render(
-                f"LEVEL {self._game_state.level}",
+                f"LEVEL {level}",
                 0,
                 COMMOM_TEXT_COLOR
             )
-        if self.__current_score != self._game_state.score:
-            score = str(self._game_state.score)
-            if len(score) >= MAX_SCORE_DIGITS:
-                score = f"{self._game_state.score:.2e}"
+            self.__current_level = level
+        if self.__current_score != score:
+            txt_score = str(score)
+            if len(txt_score) >= MAX_SCORE_DIGITS:
+                txt_score = f"{score:.2e}"
             self._score_text = self._text_font.render(
-                score,
+                txt_score,
                 0,
                 COMMOM_TEXT_COLOR
             )
+            self.__current_score = score
         if self.__text_loaded:
             return
         self._score_title = self._text_font.render(
@@ -83,8 +93,8 @@ class HUD(BaseRender):
                 center=(self._win_size_x // 10, CELL_SIZE * 5 // 7))
         )
 
-    def _render_life(self) -> None:
-        for i in range(self._game_state.life):
+    def _render_life(self, lives: int) -> None:
+        for i in range(lives):
             self._render_surface(
                 self._life,
                 (i * LIFE_ICON_SPACING,
@@ -92,9 +102,9 @@ class HUD(BaseRender):
                  )
                  )
 
-    def render_hud(self) -> None:
+    def render_hud(self, level: int, score: int, lives: int) -> None:
         self.__load_assets()
-        self.__load_text()
-        self._render_life()
+        self.__load_text(level + 1, score)
+        self._render_life(lives)
         self._render_level_title()
         self._render_score()

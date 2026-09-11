@@ -5,8 +5,7 @@ from enums import Direction, GhostState
 from typing import Literal
 from maze import MazeAdapter
 from consts import (
-    PACMAN_DEATH_SPRITE_START_INDEX_Y, ENTITIES_UP_SPRITE_INDEX_Y,
-    SCARED_TIME, SAFE_DEFAULTS
+    TIMER_FRIGHTENED, SAFE_DEFAULTS
     )
 
 
@@ -32,7 +31,7 @@ class GameState:
         self.active_screen = active_screen
         self.maze = maze
         self.in_game = False
-        self.scared_time = SCARED_TIME
+        self.scared_time = TIMER_FRIGHTENED
         self.clock = clock  # debug
         self.life = 3
         self.level = 1

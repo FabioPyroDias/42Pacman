@@ -1,5 +1,7 @@
 import pygame
-from game import GameState
+from entities import Collectable, Ghost, Pacman
+from enums import GameState
+from maze import MazeAdapter
 from .base_render import BaseRender
 from consts import (
     GAME_OVER_TEXT_COLOR
@@ -8,8 +10,11 @@ from consts import (
 
 class GameOver(BaseRender):
     def __init__(self, win_size: tuple[int, int], title: str,
-                 game_state: GameState) -> None:
-        super().__init__(win_size, title, game_state)
+                 pacman: Pacman, ghosts: list[Ghost],
+                 collectables: dict[tuple[int, int], Collectable],
+                 game_state: GameState, maze: MazeAdapter, *args) -> None:
+        super().__init__(win_size, title, pacman, ghosts,
+                         collectables, game_state, maze, *args)
         self.__fonts_loaded = False
         self.__text_loaded = False
 
