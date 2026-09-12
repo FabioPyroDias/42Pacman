@@ -164,5 +164,5 @@ class MovableEntity(Entity):
                 self.move_progress += delta
 
         if self.move_progress >= 1.0:
-            self.pos = self.get_next_position()
+            self.pos = self.get_next_position_on(self.pos, self.direction)
             self.move_progress = 0.0
