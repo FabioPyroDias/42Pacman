@@ -1,10 +1,6 @@
 import pygame
 import time
-
-from entities.collectable import Collectable
-from entities.ghost import Ghost
-from entities.pacman import Pacman
-from enums import GameState
+from manager.game import Game
 from maze.maze_adapter import MazeAdapter
 from .base_render import BaseRender
 from consts import (
@@ -15,11 +11,8 @@ from consts import (
 
 class MainMenu(BaseRender):
     def __init__(self, win_size: tuple[int, int], title: str,
-                 pacman: Pacman, ghosts: list[Ghost],
-                 collectables: dict[tuple[int, int], Collectable],
-                 game_state: GameState, maze: MazeAdapter, *args) -> None:
-        super().__init__(win_size, title, pacman, ghosts,
-                         collectables, game_state, maze, *args)
+                 game: Game, maze: MazeAdapter, *args) -> None:
+        super().__init__(win_size, title, game, maze, *args)
         self.__blink_cta = True
         self.__fonts_loaded = False
         self.__text_loaded = False

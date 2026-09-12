@@ -60,7 +60,7 @@ WALL_COLOR = (255, 255, 255)
 COMMOM_TEXT_COLOR = (255, 255, 255)
 GAME_TITLE_COLOR = (230, 230, 50)
 GAME_OVER_TEXT_COLOR = (255, 0, 0)
-VICTORY_TEXT_COLOR = (50, 230, 230)
+VICTORY_TEXT_COLOR = (50, 230, 50)
 
 # SIZES
 SPRITE_SIZE = 40
@@ -101,10 +101,11 @@ INSTRUCTIONS_LIST = [
     ("W / Arraw Up ", " Move Up"),
     ("W / Arraw Left ", " Move Left"),
     ("W / Arraw Down ", " Move Down"),
-    ("W / Arraw Right ", " Move Right")
+    ("W / Arraw Right ", " Move Right"),
+    ("SPACE ", " Pause")
 ]
 
-TIMER_RESPAWN = 2.0
+TIMER_RESPAWN = 1.33
 
 WAVE_TIMERS_SCATTER_CHASE = [
     (7.0, 20.0),

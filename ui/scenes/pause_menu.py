@@ -1,8 +1,7 @@
 import pygame
 from .base_render import BaseRender
-from entities import Pacman, Ghost, Collectable
+from manager.game import Game
 from maze import MazeAdapter
-from enums import GameState
 from consts import (
     COMMOM_TEXT_COLOR
 )
@@ -10,11 +9,8 @@ from consts import (
 
 class PauseMenu(BaseRender):
     def __init__(self, win_size: tuple[int, int], title: str,
-                 pacman: Pacman, ghosts: list[Ghost],
-                 collectables: dict[tuple[int, int], Collectable],
-                 game_state: GameState, maze: MazeAdapter, *args) -> None:
-        super().__init__(win_size, title, pacman, ghosts,
-                         collectables, game_state, maze, *args)
+                 game: Game, maze: MazeAdapter, *args) -> None:
+        super().__init__(win_size, title, game, maze, *args)
         self.__updated = False
         self.__fonts_loaded = False
         self.__text_loaded = False

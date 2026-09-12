@@ -22,7 +22,8 @@ class Ghost(MovableEntity):
                  maze: MazeAdapter,
                  state: GhostState,
                  scatter_area_top_left: tuple[int, int],
-                 scatter_area_bottom_right: tuple[int, int]) -> None:
+                 scatter_area_bottom_right: tuple[int, int],
+                 id: int) -> None:
         """Initializes a new Ghost instance.
 
         Args:
@@ -34,6 +35,7 @@ class Ghost(MovableEntity):
                 of the scatter zone's top left corner.
             scatter_area_bottom_right (tuple[int, int]): Coordinates (x, y)
                 of the scatter zone's bottom right corner.
+            id (int): Unique identifier for this ghost.
 
         Returns:
             None
@@ -47,6 +49,7 @@ class Ghost(MovableEntity):
         self.scatter_target = (
             self.generate_random_pos(scatter_area_top_left,
                                      scatter_area_bottom_right))
+        self.id = id
 
     def generate_random_pos(self,
                             top_left_boundary: tuple[int, int],

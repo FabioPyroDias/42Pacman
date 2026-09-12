@@ -2,18 +2,13 @@ import os
 import pygame
 from abc import ABC
 from consts import ANIMATION_FPS
-from enums import GameState
+from manager.game import Game
 from maze import MazeAdapter
-from entities import (
-    Pacman, Ghost, Collectable
-)
 
 
 class BaseRender(ABC):
     def __init__(self, win_size: tuple[int, int], title: str,
-                 pacman: Pacman, ghosts: list[Ghost],
-                 collectables: dict[tuple[int, int], Collectable],
-                 game_state: GameState, maze: MazeAdapter) -> None:
+                 game: Game, maze: MazeAdapter) -> None:
         super().__init__()
         pygame.init()
         pygame.display.set_caption(title)
@@ -25,10 +20,7 @@ class BaseRender(ABC):
         self._win = pygame.display.set_mode((self._win_size_x,
                                              self._win_size_y),
                                             pygame.NOFRAME)
-        self._pacman = pacman
-        self._ghosts = ghosts
-        self._collectables = collectables
-        self._game_state = game_state
+        self._game = game
         self._animation_fps = 1 / ANIMATION_FPS
 
     def _render_surface(self, surface: pygame.Surface,

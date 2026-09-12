@@ -1,7 +1,6 @@
 import pygame
-from enums import GameState
+from manager.game import Game
 from maze import MazeAdapter
-from entities import Pacman, Ghost, Collectable
 from .base_render import BaseRender
 from consts import (
     BACKGROUND_COLOR, COMMOM_TEXT_COLOR, EXPECTECTED_HIGHSCORES_LEN,
@@ -11,12 +10,9 @@ from consts import (
 
 class HighscoreView(BaseRender):
     def __init__(self, win_size: tuple[int, int], title: str,
-                 pacman: Pacman, ghosts: list[Ghost],
-                 collectables: dict[tuple[int, int], Collectable],
-                 game_state: GameState, maze: MazeAdapter,
+                 game: Game, maze: MazeAdapter,
                  highscores: dict[str, int], *args) -> None:
-        super().__init__(win_size, title, pacman, ghosts,
-                         collectables, game_state, maze, *args)
+        super().__init__(win_size, title, game, maze, *args)
         self._highscores = highscores
         self.__updated = False
         self.__fonts_loaded = False

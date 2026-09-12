@@ -1,8 +1,5 @@
 import pygame
-
-from entities.collectable import Collectable
-from entities.ghost import Ghost
-from entities.pacman import Pacman
+from manager.game import Game
 from enums import GameState, SceneState
 from maze.maze_adapter import MazeAdapter
 from .scenes import (
@@ -17,18 +14,13 @@ Coordinates = tuple[int, int]
 class GUI(Gameplay, HUD, MainMenu, Instructions,
           HighscoreView, PauseMenu, GameOver, Victory):
     def __init__(self, win_size: tuple[int, int], title: str,
-                 pacman: Pacman, ghosts: list[Ghost],
-                 collectables: dict[tuple[int, int], Collectable],
-                 game_state: GameState, maze: MazeAdapter,
-                 map_size: tuple[int, int],
+                 game: Game, maze: MazeAdapter, map_size: tuple[int, int],
                  highscores: dict[str, int]) -> None:
-        super().__init__(win_size, title, pacman, ghosts,
-                         collectables, game_state,
-                         maze, map_size, highscores)
+        super().__init__(win_size, title, game, maze, map_size, highscores)
 
-    def draw(self, active_scene: SceneState, frightened_timer: float,
-             level: int, score: int, lives: int,
-             clock: pygame.time.Clock) -> None:
+    def update(self, active_scene: SceneState, frightened_timer: float,
+               level: int, score: int, lives: int, game_state: GameState,
+               clock: pygame.time.Clock) -> None:
         match active_scene:
             case SceneState.MENU:
                 self.render_menu()
@@ -37,7 +29,7 @@ class GUI(Gameplay, HUD, MainMenu, Instructions,
             case SceneState.HIGHSCORES_VIEW:
                 self.render_highscores()
             case SceneState.GAMEPLAY:
-                self.render_gameplay(frightened_timer)
+                self.render_gameplay(frightened_timer, game_state)
                 self.render_hud(level, score, lives)
             case SceneState.PAUSE:
                 self.render_pause()

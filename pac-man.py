@@ -1,5 +1,5 @@
 from ui import GUI
-from enums import Direction, SceneState, GhostState
+from enums import Direction, SceneState, GameState
 from parser.parser import parser_configuration_file
 from manager.game import Game
 import pygame
@@ -8,9 +8,9 @@ import time
 running = True
 configs = parser_configuration_file("configs.json")
 game = Game(configs)
-gui = GUI((800, 600), "PAC-MAN", game.pacman,
-          game.ghosts, game.collectables, game.game_state,
-          game.maze, (game.maze.width, game.maze.height),
+game.toggle_pause()
+gui = GUI((800, 600), "PAC-MAN", game, game.maze,
+          (game.maze.width, game.maze.height),
           {"p1": 100})
 clock = pygame.time.Clock()
 
@@ -28,8 +28,8 @@ while running:
     clock.tick()  # debug (tirar depois)
 
     game.update(delta)  # 0.028
-    gui.draw(active_scene, game.frightened_timer, game.current_level_index,
-             game.score, game.lives, clock)
+    gui.update(active_scene, game.frightened_timer, game.current_level_index,
+               game.score, game.lives, game.game_state, clock)
     for event in gui.get_event():
         if event.type == pygame.QUIT:
             running = False
@@ -44,6 +44,7 @@ while running:
                         active_scene = SceneState.INSTRUCTIONS
                     case pygame.K_SPACE:
                         active_scene = SceneState.GAMEPLAY
+                        game.toggle_pause()
             elif active_scene in (SceneState.HIGHSCORES_VIEW,
                                   SceneState.INSTRUCTIONS):
                 if event.key == pygame.K_ESCAPE:
@@ -51,9 +52,8 @@ while running:
             elif active_scene == SceneState.PAUSE:
                 if event.key == pygame.K_ESCAPE:
                     active_scene = SceneState.MENU
-                    game.reset_ghosts()
-                    game.reset_pacman()
-                    game.reset_timers()
+                    game.setup_level()
+                    game.toggle_pause()
             else:
                 match event.key:
                     case pygame.K_SPACE:
@@ -71,11 +71,9 @@ while running:
                         game.set_player_direction(Direction.SOUTH)
                     case pygame.K_a | pygame.K_LEFT:
                         game.set_player_direction(Direction.WEST)
-
-    #if all([g.state in (GhostState.CHASE, GhostState.SCATTER) for g in game.ghosts]):
-    #    print("vivo")
-    #else:
-    #    print("morto")
-
+    if game.game_state == GameState.GAME_OVER:
+        active_scene = SceneState.GAMEOVER
+    elif game.game_state == GameState.VICTORY:
+        active_scene = SceneState.VICTORY
     elapsed = time.perf_counter() - now
 pygame.quit()

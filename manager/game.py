@@ -219,9 +219,6 @@ class Game():
         if self.lives == 0:
             self.game_state = GameState.GAME_OVER
         else:
-            self.reset_pacman()
-            self.reset_ghosts()
-            self.reset_timers()
             self.game_state = GameState.RESPAWNING
 
     def update(self, delta: float) -> None:
@@ -230,6 +227,9 @@ class Game():
             self.respawn_timer += delta
             if self.respawn_timer >= TIMER_RESPAWN:
                 self.respawn_timer = 0.0
+                self.reset_pacman()
+                self.reset_ghosts()
+                self.reset_timers()
                 self.game_state = GameState.PLAYING
             return
 
@@ -379,13 +379,13 @@ class Game():
 
         self.ghosts = [
             Blinky(blinky_pos, Direction.NORTH, self.maze, GhostState.SCATTER,
-                   blinky_scatter_top_left, blinky_scatter_bottom_right),
+                   blinky_scatter_top_left, blinky_scatter_bottom_right, 0),
             Pinky(pinky_pos, Direction.NORTH, self.maze, GhostState.SCATTER,
-                  pinky_scatter_top_left, pinky_scatter_bottom_right),
+                  pinky_scatter_top_left, pinky_scatter_bottom_right, 1),
             Inky(inky_pos, Direction.NORTH, self.maze, GhostState.SCATTER,
-                 inky_scatter_top_left, inky_scatter_bottom_right),
+                 inky_scatter_top_left, inky_scatter_bottom_right, 2),
             Clyde(clyde_pos, Direction.NORTH, self.maze, GhostState.SCATTER,
-                  clyde_scatter_top_left, clyde_scatter_bottom_right),
+                  clyde_scatter_top_left, clyde_scatter_bottom_right, 3),
         ]
 
     def reset_timers(self) -> None:
