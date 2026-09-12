@@ -4,7 +4,7 @@ from typing import Any
 
 
 SAFE_DEFAULTS: dict[str, Any] = {
-    "highscore_filename": "path_to_file",
+    "highscore_filename": "highscores.json",
     "level": [
         {"width": 14, "height": 14, "number_of_pacgums": 174},
         {"width": 16, "height": 16, "number_of_pacgums": 234},

@@ -477,15 +477,15 @@ class Game():
         elif self.game_state == GameState.PLAYING:
             self.game_state = GameState.PAUSED
 
-    def skip_level(self) -> None:
-        if self.game_state == GameState.PLAYING:
-            self.game_state = GameState.LEVEL_COMPLETE
-
     def cheat_toggle_invincible(self) -> None:
         self.cheat_invincible = not self.cheat_invincible
 
     def cheat_toggle_ghost_freeze(self) -> None:
         self.cheat_ghost_freeze = not self.cheat_ghost_freeze
+
+    def cheat_skip_level(self) -> None:
+        if self.game_state == GameState.PLAYING:
+            self.game_state = GameState.LEVEL_COMPLETE
 
     def cheat_add_lives(self) -> None:
         self.lives += 1
