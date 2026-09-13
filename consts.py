@@ -1,10 +1,11 @@
 """Default configurations and game constants for Pac-Man."""
 
 from typing import Any
+from enums import Direction
 
 
 SAFE_DEFAULTS: dict[str, Any] = {
-    "highscore_filename": "path_to_file",
+    "highscore_filename": "highscores.json",
     "level": [
         {"width": 14, "height": 14, "number_of_pacgums": 174},
         {"width": 16, "height": 16, "number_of_pacgums": 234},
@@ -45,3 +46,24 @@ MAX_POINTS_GHOST = 250
 
 MIN_LEVEL_TIME = 60
 MAX_LEVEL_TIME = 180
+
+TIMER_RESPAWN = 2.0
+
+WAVE_TIMERS_SCATTER_CHASE = [
+    (7.0, 20.0),
+    (7.0, 20.0),
+    (5.0, 20.0),
+    (5.0, float("inf"))
+]
+
+TIMER_FRIGHTENED = 10.0
+TIMER_EATEN = 5.0
+
+DIRECTION_VECTORS: dict[Direction, tuple[float, float]] = {
+    Direction.NORTH: (0.0, -1.0),
+    Direction.SOUTH: (0.0, 1.0),
+    Direction.EAST: (1.0, 0.0),
+    Direction.WEST: (-1.0, 0.0),
+}
+
+COLLISION_DISTANCE_THRESHOLD = 0.5

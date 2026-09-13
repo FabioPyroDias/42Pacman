@@ -7,8 +7,15 @@ requires-python = ">=3.14"
 dependencies = [
     "flake8>=7.3.0",
     "mypy>=2.3.1",
-    "pysdl2>=0.9.17",
+    "mazegenerator"
 ]
+
+[tool.uv.sources]
+mazegenerator = { path = "mazegenerator-2.1.0-py3-none-any.whl" }
 
 [tool.mypy]
 exclude = ["pacman/", ".venv/"]
+
+[[tool.mypy.overrides]]
+module = "mazegenerator.*"
+ignore_missing_imports = true
