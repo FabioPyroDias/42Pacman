@@ -7,12 +7,14 @@ and collisions across game loops.
 
 from typing import Any
 from maze.maze_adapter import MazeAdapter
+from entities.entity import MovableEntity
 from entities.pacman import Pacman
 from entities.ghost import Ghost, Blinky, Pinky, Inky, Clyde
 from entities.collectable import Collectable, Pacgum, SuperPacgum
 from enums import Direction, GhostState, GameState
-from consts import (WAVE_TIMERS_SCATTER_CHASE, TIMER_FRIGHTENED, TIMER_EATEN,
-                    TIMER_RESPAWN)
+from consts import (WAVE_TIMERS_SCATTER_CHASE,
+                    TIMER_FRIGHTENED, TIMER_EATEN, TIMER_RESPAWN,
+                    DIRECTION_VECTORS, COLLISION_DISTANCE_THRESHOLD)
 from random import randint
 
 
@@ -167,7 +169,14 @@ class Game():
                 and pacman_previous_position == ghost.pos
             )
 
-            if direct_collision or swap_collision:
+            pacman_visual = self.visual_position(self.pacman)
+            ghost_visual = self.visual_position(ghost)
+            distance_collision = (
+                (pacman_visual[0] - ghost_visual[0]) ** 2
+                + (pacman_visual[1] - ghost_visual[1]) ** 2
+            ) ** 0.5 <= COLLISION_DISTANCE_THRESHOLD
+
+            if direct_collision or swap_collision or distance_collision:
                 if ghost.state == GhostState.FRIGHTENED:
                     ghost.state = GhostState.EATEN
                     self.score += self.config["points_per_ghost"]
@@ -489,3 +498,26 @@ class Game():
 
     def cheat_add_lives(self) -> None:
         self.lives += 1
+
+    def visual_position(entity: MovableEntity) -> tuple[float, float]:
+        """
+        Calculate the smooth intermediate (x, y) position between maze cells.
+
+        Computes where the entity should be drawn while walking from one cell
+        to the next, factoring in its movement progress.
+
+        Args:
+            entity (MovableEntity): Entity with `pos`, `direction`,
+                and `move_progress`.
+
+        Returns:
+            tuple[float, float]: Visual position, between its current
+                cell and the cell it is moving into.
+        """
+
+        delta_x, delta_y = DIRECTION_VECTORS[entity.direction]
+
+        return (
+            entity.pos[0] + delta_x * entity.move_progress,
+            entity.pos[1] + delta_y * entity.move_progress,
+        )

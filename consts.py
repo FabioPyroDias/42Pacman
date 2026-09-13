@@ -1,6 +1,7 @@
 """Default configurations and game constants for Pac-Man."""
 
 from typing import Any
+from enums import Direction
 
 
 SAFE_DEFAULTS: dict[str, Any] = {
@@ -57,3 +58,12 @@ WAVE_TIMERS_SCATTER_CHASE = [
 
 TIMER_FRIGHTENED = 10.0
 TIMER_EATEN = 5.0
+
+DIRECTION_VECTORS: dict[Direction, tuple[float, float]] = {
+    Direction.NORTH: (0.0, -1.0),
+    Direction.SOUTH: (0.0, 1.0),
+    Direction.EAST: (1.0, 0.0),
+    Direction.WEST: (-1.0, 0.0),
+}
+
+COLLISION_DISTANCE_THRESHOLD = 0.5
