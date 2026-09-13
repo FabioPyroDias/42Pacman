@@ -1,10 +1,12 @@
 *This project has been created as part of the 42 curriculum by fda-cruz, jsouza.*
 
+# Pacman
+
 ## Description
 
-Pacman is recreation of the classic 1980s arcade game. Instead of a default maze, the project integrates an externally provided maze generation package. Another 42 project, A-Maze-ing, built by another group.
+Pacman is a recreation of the classic 1980s arcade game. Instead of a default maze, the project integrates an externally provided maze generation package. Another 42 project, A-Maze-ing, built by another group.
 
-The game parameters are defined by a JSON configuration file support single-line comments as well as block comments.
+The game parameters are defined by a JSON configuration file supports single-line comments as well as block comments.
 If the configuration file isn't correctly formatted or the configuration itself is invalid, the game corrects what's wrong and fills in what's missing.
 There are 10 playable levels. By default, these increase in size as the player progresses through the levels.
 
@@ -12,7 +14,7 @@ The project also implements the four original ghosts:
 - Blinky, who chases pacman directly
 - Pinky, who ambushes pacman
 - Inky, who flanks pacman using both pacman's and Blinky's positions
-- Clyde, who chases or rans from pacman depending on the distance
+- Clyde, who chases or runs from pacman depending on the distance
 
 The player collects Pacgums and SuperPacums to increase their score. These last ones however, change the ghosts to a Frightened state which pacman can then eat, and score more points. This is the standard behaviour in the original Pacman.
 
@@ -49,13 +51,13 @@ A virtual environment (pacman) will be created automatically during installation
 To install project dependencies, simply run `make install` in the terminal.
 This will:
 - Create a virtual environment pacman
-- Install required Python packages (flake8, mypy, mazegeneratpr, etc.)
+- Install required Python packages (flake8, mypy, mazegenerator, etc.)
 
 ### Execution
 
 Run the program with `make run`.
 
-Alternatively, the program can be ran with `pacman/bin/python pacman.py config.json`
+Alternatively, the program can be ran with `pacman/bin/python pac-man.py config.json`
 
 ## Technical Overview
 
@@ -79,7 +81,7 @@ The `number_of_pacgums` per level is calculated with: `width * height - 18 - 4`.
 `18` due to the size square area of the 42 pattern and `4` represents all the corners reserved for `SuperPacgums`.
 This formula is automatically executed in case the config value doesn't match.
 
-Any missing, malformed or out of range value is replaced with it's safe default, entry by entry. This means that a single wrong field does not discard the whole file. Unknown keys are ignored. Any parsing or validation error never crashes the program.
+Any missing, malformed or out of range value is replaced with its safe default, entry by entry. This means that a single wrong field does not discard the whole file. Unknown keys are ignored. Any parsing or validation error never crashes the program.
 
 ### Highscore system
 
@@ -87,15 +89,15 @@ Highscores are stored locally in a JSON file, keeping only the top 10 results.
 
 All entries are validated upon loading. Any malformed or invalid record is filtered out and removed when the file is next saved.
 
-When the game ends, wether by losing all lives or completing all levels, the player can input their name if their score qualifies for the top 10 or if fewer than 10 entries exist. The name cannot be empty, must contain only alphanumeric characters or spaces, and has a maximum length of 10 characters.
+When the game ends, whether by losing all lives or completing all levels, the player can input their name if their score qualifies for the top 10 or if fewer than 10 entries exist. The name cannot be empty, must contain only alphanumeric characters or spaces, and has a maximum length of 10 characters.
 
 Data is stored as a list of dicts `{"name": str, "score": int}`. This format allows multiple entries under the same name without overwriting previous scores.
 
 ### Maze Generation
 
-Maze generation is handled by the assigned external **A-Maze-ing** package, ensuring this project does not implement it's own generator.
+Maze generation is handled by the assigned external **A-Maze-ing** package, ensuring this project does not implement its own generator.
 
-An adapter class wrapps the package's output to fit the project's needs without modifying the original source code.
+An adapter class wraps the package's output to fit the project's needs without modifying the original source code.
 This class handles boundary validation and filters unreachable cells, such as the 42 pattern, during pathfinding.
 
 The first level is always generated using the seed set in the config JSON file, while the subsequent levels use random seeds.
@@ -108,17 +110,17 @@ Every object in the maze inherits from a base `Entity` class. This only possesse
 
 `Pacman` and the four `Ghosts` subclasses, `Blinky`, `Pinky`, `Inky` and `Clyde`, extend `MovableEntity`, with each ghost overriding `calculate_chase_target` for its respective behaviour.
 
-The collision detection is always `Pacman-Collectable` and `Pacman-Ghost`. Entirely logic based, not pixel base. Two entities collide if they occupy the same cell at the end of a frame or if they cross paths while swapping adjacent cells.
+The collision detection is always `Pacman-Collectable` and `Pacman-Ghost`. Two entities collide if they occupy the same cell at the end of a frame or if they cross paths while swapping adjacent cells.
 
-The `Ghosts` cycle through a `SCATTER` and a `CHASE` states waves on a global timer. They switch to `FRIGHTENED` when a `SuperPacgum` is collected, freezing the previously timer. When `Pacman` collides with any of these while in `FRIGHTENED` state, their state's changed to `EATEN`, respawning them after a fixed delay.
+The `Ghosts` cycle through a `SCATTER` and a `CHASE` state waves on a global timer. They switch to `FRIGHTENED` when a `SuperPacgum` is collected, freezing the previous timer. When `Pacman` collides with any of these while in `FRIGHTENED` state, their state is changed to `EATEN`, respawning them after a fixed delay.
 
 A cheat mode was implemented. These are:
 - **Invincibility**: The player can collide with `Ghosts` without being in their `FRIGHTENED` state and won't lose any lives or stop the game.
 - **Ghost Freeze**: The `Ghosts` stop moving.
 - **Level Skip**: The player can simply skip the level and go to the next or, if it's the last level, finish the game.
-- **Add Lives**: Everytime the player uses this cheat, they get one more live.
+- **Add Lives**: Every time the player uses this cheat, they get one more life.
 
-This mode was implement to help the peers review the features of the game easily.
+This mode was implemented to help peers review the features of the game easily.
 
 ### General Software Architecture
 
