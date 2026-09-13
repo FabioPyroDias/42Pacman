@@ -499,7 +499,7 @@ class Game():
     def cheat_add_lives(self) -> None:
         self.lives += 1
 
-    def visual_position(entity: MovableEntity) -> tuple[float, float]:
+    def visual_position(self, entity: MovableEntity) -> tuple[float, float]:
         """
         Calculate the smooth intermediate (x, y) position between maze cells.
 
