@@ -16,7 +16,7 @@ INSTRUCTIONS = [first + "."*abs(
 
 class Instructions(BaseRender):
     def __init__(self, win_size: tuple[int, int], title: str,
-                 game: Game, maze: MazeAdapter, **kargs: dict) -> None:
+                 game: Game, maze: MazeAdapter, **kargs: object) -> None:
         super().__init__(win_size, title, game, maze, **kargs)
         self.__updated = False
         self.__fonts_loaded = False
@@ -32,7 +32,7 @@ class Instructions(BaseRender):
             return
         self._background = pygame.Surface(self._win.get_size())
 
-        self._fill(self._background, BACKGROUND_COLOR)
+        self._background.fill(BACKGROUND_COLOR)
 
         self.__updated = True
 

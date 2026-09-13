@@ -1,6 +1,6 @@
-export UV_PROJECT_ENVIRONMENT = pacman
+export UV_PROJECT_ENVIRONMENT = .venv
 
-PYTHON = pacman/bin/python3
+PYTHON = $(UV_PROJECT_ENVIRONMENT)/bin/python3
 
 MYPY_FLAGS = --warn-return-any --warn-unused-ignores \
 		--ignore-missing-imports --disallow-untyped-defs \
@@ -27,10 +27,12 @@ clean:
 	$(RM) parser/__pycache__
 
 lint:
+	clear
 	$(PYTHON) -m flake8
 	$(PYTHON) -m mypy $(MYPY_FLAGS) .
 
 lint-strict:
+	clear
 	$(PYTHON) -m flake8
 	$(PYTHON) -m mypy --strict .
 

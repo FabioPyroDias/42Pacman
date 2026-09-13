@@ -6,8 +6,9 @@ from .pause_menu import PauseMenu
 from .highscore_view import HighscoreView
 from .game_over import GameOver
 from .victory import Victory
+from .name_entry import NameEntry
 
 
 __all__ = ["MainMenu", "Instructions", "Gameplay",
            "HUD", "PauseMenu", "HighscoreView",
-           "GameOver", "Victory"]
+           "GameOver", "Victory", "NameEntry"]

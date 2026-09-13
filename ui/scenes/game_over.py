@@ -10,7 +10,7 @@ from consts import (
 class GameOver(BaseRender):
     def __init__(self, win_size: tuple[int, int], title: str,
                  game: Game,
-                 maze: MazeAdapter, **kargs: dict) -> None:
+                 maze: MazeAdapter, **kargs: object) -> None:
         super().__init__(win_size, title, game, maze, **kargs)
         self.__fonts_loaded = False
         self.__text_loaded = False

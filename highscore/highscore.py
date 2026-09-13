@@ -43,6 +43,10 @@ class Highscore():
             else:
                 print("Invalid format in highscores file. Using empty list")
 
+            self.scores = sorted(self.scores,
+                                 key=lambda entry: entry["score"],
+                                 reverse=True)
+            self.scores = self.scores[0: 10]
             return
 
         except IsADirectoryError:

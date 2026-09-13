@@ -25,7 +25,7 @@ Coordinates = tuple[int, int]
 class Gameplay(BaseRender):
     def __init__(self, win_size: tuple[int, int], title: str,
                  game: Game, maze: MazeAdapter,
-                 map_size: tuple[int, int], **kargs: dict) -> None:
+                 map_size: tuple[int, int], **kargs: object) -> None:
         super().__init__(win_size, title, game, maze, **kargs)
         map_size_x, map_size_y = map_size
         self._map_size_x = map_size_x * CELL_SIZE
@@ -40,6 +40,7 @@ class Gameplay(BaseRender):
         self.__pacman_dead_sprite_index_y = PACMAN_DEATH_SPRITE_START_INDEX_Y
         self.__sprites_y = {ghost.id: 0 for ghost in self._game.ghosts}
         self.__sprites_x = {ghost.id: 0 for ghost in self._game.ghosts}
+        self._background: pygame.Surface | None = None
 
         now = perf_counter()
         self.__last_pacman_frame_time = now
@@ -95,10 +96,10 @@ class Gameplay(BaseRender):
         self._lw_wall = pygame.Surface((WALL_THICKNESS,
                                         CELL_SIZE + WALL_THICKNESS * 2))
 
-        self._fill(self._background, BACKGROUND_COLOR)
-        self._fill(self._backgroud_42, FT_BACKGROUND_COLOR)
-        self._fill(self._ns_wall, WALL_COLOR)
-        self._fill(self._lw_wall, WALL_COLOR)
+        self._background.fill(BACKGROUND_COLOR)
+        self._backgroud_42.fill(FT_BACKGROUND_COLOR)
+        self._ns_wall.fill(WALL_COLOR)
+        self._lw_wall.fill(WALL_COLOR)
 
         self.__updated = True
 
@@ -129,6 +130,7 @@ class Gameplay(BaseRender):
                                     y + WALL_THICKNESS))
 
     def _render_map(self) -> None:
+        assert self._background
         self._render_surface(self._background, (0, 0))
         final_line = False
         for y in range(self._maze.height):
@@ -189,11 +191,6 @@ class Gameplay(BaseRender):
                     self.__dead_ghost_sprite,
                     ghost,
                     DEAD_GHOST_SPRITE_LAST_INDEX_X
-                    )
-                self._render_ghost(
-                    self.__ghost_assets[i],
-                    ghost,
-                    GHOST_SPRITE_LAST_INDEX_X
                     )
             else:
                 self._render_ghost(
@@ -372,10 +369,36 @@ class Gameplay(BaseRender):
                               last_index_x: int,
                               last_index_y: int,
                               start_index_y: int) -> None:
+        progress_tuple: tuple[float, float]
+        match self._game.pacman.direction:
+            case Direction.NORTH:
+                if self._game.pacman.reversing:
+                    progress_tuple = (0.0, self._game.pacman.move_progress)
+                else:
+                    progress_tuple = (0.0, -self._game.pacman.move_progress)
+            case Direction.EAST:
+                if self._game.pacman.reversing:
+                    progress_tuple = (-self._game.pacman.move_progress, 0.0)
+                else:
+                    progress_tuple = (self._game.pacman.move_progress, 0.0)
+            case Direction.WEST:
+                if self._game.pacman.reversing:
+                    progress_tuple = (self._game.pacman.move_progress, 0.0)
+                else:
+                    progress_tuple = (-self._game.pacman.move_progress, 0.0)
+            case Direction.SOUTH:
+                if self._game.pacman.reversing:
+                    progress_tuple = (0.0, -self._game.pacman.move_progress)
+                else:
+                    progress_tuple = (0.0, self._game.pacman.move_progress)
+            case _:
+                raise ValueError("Invalid direction")
         self._map_surface.blit(
             sprite,
-            (self._game.pacman.pos[0] * CELL_SIZE + WALL_OFFSET,
-             self._game.pacman.pos[1] * CELL_SIZE + WALL_OFFSET),
+            ((self._game.pacman.pos[0] + progress_tuple[0])
+                * CELL_SIZE + WALL_OFFSET,
+             (self._game.pacman.pos[1] + progress_tuple[1])
+                * CELL_SIZE + WALL_OFFSET),
             (self.__pacman_dead_sprite_index_x * SPRITE_SIZE,
              self.__pacman_dead_sprite_index_y * SPRITE_SIZE,
              SPRITE_SIZE, SPRITE_SIZE)

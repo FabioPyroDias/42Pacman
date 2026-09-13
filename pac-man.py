@@ -1,4 +1,5 @@
-from ui import GUI
+from ui import GUI, handle_name_input
+from highscore import Highscore
 from enums import Direction, SceneState, GameState
 from parser.parser import parser_configuration_file
 from manager.game import Game
@@ -6,12 +7,12 @@ import pygame
 import time
 
 running = True
-configs = parser_configuration_file("configs.json")
+configs = parser_configuration_file("config.json")
+highscores = Highscore("highscores.json")
 game = Game(configs)
 game.toggle_pause()
 gui = GUI((800, 600), "PAC-MAN", game, game.maze,
-          (game.maze.width, game.maze.height),
-          {"p1": 100})
+          (game.maze.width, game.maze.height))
 clock = pygame.time.Clock()
 
 active_scene = SceneState.MENU
@@ -19,6 +20,7 @@ active_scene = SceneState.MENU
 last_time = time.perf_counter()
 frame_duration = 1 / 60  # fps alvo
 elapsed = 0  # usado para travar fps
+player_name = ""
 while running:
     if elapsed < frame_duration:  # para travar fps
         time.sleep(frame_duration - elapsed)
@@ -27,9 +29,10 @@ while running:
     last_time = now
     clock.tick()  # debug (tirar depois)
 
-    game.update(delta)  # 0.028
+    game.update(0.028)  # 0.028
     gui.update(active_scene, game.frightened_timer, game.current_level_index,
-               game.score, game.lives, game.game_state, clock)
+               game.score, game.lives, game.game_state,
+               clock, player_name, highscores.scores)
     for event in gui.get_event():
         if event.type == pygame.QUIT:
             running = False
@@ -58,6 +61,25 @@ while running:
                 elif event.key == pygame.K_SPACE:
                     active_scene = SceneState.GAMEPLAY
                     game.toggle_pause()
+
+            elif active_scene in (SceneState.GAMEOVER,
+                                  SceneState.VICTORY):
+                if event.key == pygame.K_DELETE:
+                    active_scene = SceneState.NAMEENTRY
+
+            elif active_scene == SceneState.NAMEENTRY:
+                if event.key == pygame.K_ESCAPE:
+                    active_scene = SceneState.MENU
+                elif event.key == pygame.K_RETURN:
+                    highscores.add_score(player_name, game.score)
+                    active_scene = SceneState.HIGHSCORES_VIEW
+                else:
+                    player_name = handle_name_input(
+                        10,
+                        player_name,
+                        event
+                        )
+
             else:
                 match event.key:
                     case pygame.K_SPACE:

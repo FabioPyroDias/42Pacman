@@ -42,3 +42,4 @@ class SceneState(Enum):
     PAUSE = 4
     GAMEOVER = 5
     VICTORY = 6
+    NAMEENTRY = 7

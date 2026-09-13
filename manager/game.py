@@ -282,6 +282,12 @@ class Game():
                                    self.ghosts[0].pos)
 
         if self.check_collisions(previous_pos_pacman, previous_pos_ghosts):
+            print("P pos:", self.visual_position(self.pacman), self.pacman.direction)
+            print("BLINKY pos:", self.visual_position(self.ghosts[0]), self.ghosts[0].direction)
+            print("PINKY pos:", self.visual_position(self.ghosts[1]), self.ghosts[1].direction)
+            print("INKY pos:", self.visual_position(self.ghosts[2]), self.ghosts[2].direction)
+            print("CLYDE pos:", self.visual_position(self.ghosts[3]), self.ghosts[3].direction)
+            print()
             self.check_game_over()
         else:
             self.check_level_complete()

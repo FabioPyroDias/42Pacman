@@ -11,9 +11,9 @@ from consts import (
 class HighscoreView(BaseRender):
     def __init__(self, win_size: tuple[int, int], title: str,
                  game: Game, maze: MazeAdapter,
-                 highscores: dict[str, int], **kargs: dict) -> None:
+                 **kargs: object) -> None:
         super().__init__(win_size, title, game, maze, **kargs)
-        self._highscores = highscores
+        self._highscores: list[dict[str, str | int]] | None = None
         self.__updated = False
         self.__fonts_loaded = False
         self.__text_loaded = False
@@ -28,7 +28,7 @@ class HighscoreView(BaseRender):
 
         self._background = pygame.Surface(self._win.get_size())
 
-        self._fill(self._background, BACKGROUND_COLOR)
+        self._background.fill(BACKGROUND_COLOR)
 
         self.__updated = True
 
@@ -48,8 +48,32 @@ class HighscoreView(BaseRender):
         self._highscore_heigth = self._highscore_font.get_linesize()
         self.__fonts_loaded = True
 
-    def __load_text(self) -> None:
+    def __load_text(self, highscores: list[dict[str, str | int]]) -> None:
         self.__load_fonts()
+        if self._highscores != highscores:
+            self._highscores = highscores
+            highscores_list: list[str] = []
+            for highscore in self._highscores:
+                name = highscore["name"]
+                score = highscore["score"]
+                assert isinstance(score, int) and isinstance(name, str)
+                if len(str(score)) >= MAX_SCORE_DIGITS:
+                    highscores_list.append(f"{name} " + "." * abs(
+                        len(
+                            name + f"{score:.2e}"
+                            ) + 2 - EXPECTECTED_HIGHSCORES_LEN
+                        ) + f" {score:.2e}")
+                else:
+                    highscores_list.append(f"{name} " + "." * abs(
+                        len(name + f"{score}") + 2 - EXPECTECTED_HIGHSCORES_LEN
+                        ) + f" {score}")
+            self._highscore_list = [
+                self._highscore_font.render(
+                    score,
+                    0,
+                    COMMOM_TEXT_COLOR
+                ) for score in highscores_list
+            ]
         if self.__text_loaded:
             return
         self._subtitle_highscores = self._subtitle_font.render(
@@ -66,23 +90,6 @@ class HighscoreView(BaseRender):
                 )
             ]
             return
-        highscores: list[str] = []
-        for name, score in self._highscores.items():
-            if len(str(score)) >= MAX_SCORE_DIGITS:
-                highscores.append(f"{name} " + "." * abs(
-                    len(name + f"{score:.2e}") + 2 - EXPECTECTED_HIGHSCORES_LEN
-                    ) + f" {score:.2e}")
-            else:
-                highscores.append(f"{name} " + "." * abs(
-                    len(name + f"{score}") + 2 - EXPECTECTED_HIGHSCORES_LEN
-                    ) + f" {score}")
-        self._highscore_list = [
-            self._highscore_font.render(
-                score,
-                0,
-                COMMOM_TEXT_COLOR
-            ) for score in highscores
-        ]
 
         self.__text_loaded = True
 
@@ -107,9 +114,9 @@ class HighscoreView(BaseRender):
                     )
             )
 
-    def render_highscores(self) -> None:
+    def render_highscores(self, highscore: list[dict[str, str | int]]) -> None:
         self.__update()
-        self.__load_text()
+        self.__load_text(highscore)
         assert self._background
         self._win.blit(
             self._background,

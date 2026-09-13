@@ -26,7 +26,3 @@ class BaseRender(ABC):
     def _render_surface(self, surface: pygame.Surface,
                         pos: tuple[int, int]) -> None:
         self._win.blit(surface, pos)
-
-    def _fill(self, surface: pygame.Surface,
-              color: tuple[int, int, int]) -> None:
-        pygame.PixelArray(surface)[:] = color

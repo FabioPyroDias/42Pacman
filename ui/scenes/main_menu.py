@@ -11,13 +11,14 @@ from consts import (
 
 class MainMenu(BaseRender):
     def __init__(self, win_size: tuple[int, int], title: str,
-                 game: Game, maze: MazeAdapter, **kargs: dict) -> None:
+                 game: Game, maze: MazeAdapter, **kargs: object) -> None:
         super().__init__(win_size, title, game, maze, **kargs)
         self.__blink_cta = True
         self.__fonts_loaded = False
         self.__text_loaded = False
         self.__updated = False
         self.__last_blink = time.perf_counter()
+        self._background: pygame.Surface | None = None
 
     def __load_font(self) -> None:
         if self.__fonts_loaded:
@@ -67,7 +68,7 @@ class MainMenu(BaseRender):
 
         self._background = pygame.Surface(self._win.get_size())
 
-        self._fill(self._background, BACKGROUND_COLOR)
+        self._background.fill(BACKGROUND_COLOR)
 
         self.__updated = True
 
@@ -104,6 +105,7 @@ class MainMenu(BaseRender):
     def render_menu(self) -> None:
         self.__update()
         self.__load_text()
+        assert self._background
         self._win.blit(self._background, (0, 0))
         self._render_tile()
         self._render_cta()
