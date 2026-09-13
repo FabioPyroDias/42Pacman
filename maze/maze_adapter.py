@@ -99,7 +99,7 @@ class MazeAdapter():
         """
 
         self.__mazegenerator.generate(seed)
-        self.maze: list[list[Cell]] = []
+        self.maze = []
         for row in range(self.height):
             current_row: list[Cell] = []
             for col in range(self.width):

@@ -11,8 +11,8 @@ from consts import (
 
 class MainMenu(BaseRender):
     def __init__(self, win_size: tuple[int, int], title: str,
-                 game: Game, maze: MazeAdapter, *args) -> None:
-        super().__init__(win_size, title, game, maze, *args)
+                 game: Game, maze: MazeAdapter, **kargs: dict) -> None:
+        super().__init__(win_size, title, game, maze, **kargs)
         self.__blink_cta = True
         self.__fonts_loaded = False
         self.__text_loaded = False

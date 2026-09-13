@@ -16,14 +16,15 @@ INSTRUCTIONS = [first + "."*abs(
 
 class Instructions(BaseRender):
     def __init__(self, win_size: tuple[int, int], title: str,
-                 game: Game, maze: MazeAdapter, *args) -> None:
-        super().__init__(win_size, title, game, maze, *args)
+                 game: Game, maze: MazeAdapter, **kargs: dict) -> None:
+        super().__init__(win_size, title, game, maze, **kargs)
         self.__updated = False
         self.__fonts_loaded = False
         self.__text_loaded = False
+        self._background: pygame.Surface | None = None
 
     def __update(self) -> None:
-        if (hasattr(self, "_background")
+        if (self._background
                 and self._background.get_size() != self._win.get_size()):
             self.__updated = False
 
@@ -94,6 +95,7 @@ class Instructions(BaseRender):
     def render_instructions(self) -> None:
         self.__update()
         self.__load_text()
+        assert self._background
         self._win.blit(
             self._background,
             (0, 0)

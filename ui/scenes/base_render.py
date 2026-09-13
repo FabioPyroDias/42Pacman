@@ -29,4 +29,4 @@ class BaseRender(ABC):
 
     def _fill(self, surface: pygame.Surface,
               color: tuple[int, int, int]) -> None:
-        pygame.PixelArray(surface)[:] = color  # type: ignore
+        pygame.PixelArray(surface)[:] = color

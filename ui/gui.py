@@ -1,4 +1,5 @@
 import pygame
+from typing import cast
 from manager.game import Game
 from enums import GameState, SceneState
 from maze.maze_adapter import MazeAdapter
@@ -16,7 +17,8 @@ class GUI(Gameplay, HUD, MainMenu, Instructions,
     def __init__(self, win_size: tuple[int, int], title: str,
                  game: Game, maze: MazeAdapter, map_size: tuple[int, int],
                  highscores: dict[str, int]) -> None:
-        super().__init__(win_size, title, game, maze, map_size, highscores)
+        super().__init__(win_size, title, game, maze,
+                         map_size=map_size, highscores=highscores)
 
     def update(self, active_scene: SceneState, frightened_timer: float,
                level: int, score: int, lives: int, game_state: GameState,
@@ -45,4 +47,4 @@ class GUI(Gameplay, HUD, MainMenu, Instructions,
         pygame.display.update()
 
     def get_event(self) -> list[pygame.event.Event]:
-        return pygame.event.get()
+        return cast(list[pygame.event.Event], pygame.event.get())

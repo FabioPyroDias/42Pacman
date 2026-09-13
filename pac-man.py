@@ -52,16 +52,16 @@ while running:
             elif active_scene == SceneState.PAUSE:
                 if event.key == pygame.K_ESCAPE:
                     active_scene = SceneState.MENU
+                    game.score = 0
                     game.setup_level()
+                    game.toggle_pause()
+                elif event.key == pygame.K_SPACE:
+                    active_scene = SceneState.GAMEPLAY
                     game.toggle_pause()
             else:
                 match event.key:
                     case pygame.K_SPACE:
-                        active_scene = (
-                            SceneState.PAUSE
-                            if active_scene == SceneState.GAMEPLAY
-                            else SceneState.GAMEPLAY
-                            )
+                        active_scene = SceneState.PAUSE
                         game.toggle_pause()
                     case pygame.K_w | pygame.K_UP:
                         game.set_player_direction(Direction.NORTH)

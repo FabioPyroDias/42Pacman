@@ -25,8 +25,8 @@ Coordinates = tuple[int, int]
 class Gameplay(BaseRender):
     def __init__(self, win_size: tuple[int, int], title: str,
                  game: Game, maze: MazeAdapter,
-                 map_size: tuple[int, int], *args) -> None:
-        super().__init__(win_size, title, game, maze, *args)
+                 map_size: tuple[int, int], **kargs: dict) -> None:
+        super().__init__(win_size, title, game, maze, **kargs)
         map_size_x, map_size_y = map_size
         self._map_size_x = map_size_x * CELL_SIZE
         self._map_size_y = map_size_y * CELL_SIZE
@@ -322,17 +322,29 @@ class Gameplay(BaseRender):
         progress_tuple: tuple[float, float]
         match self._game.pacman.direction:
             case Direction.NORTH:
+                if self._game.pacman.reversing:
+                    progress_tuple = (0.0, self._game.pacman.move_progress)
+                else:
+                    progress_tuple = (0.0, -self._game.pacman.move_progress)
                 self.__pacman_sprite_index_y = ENTITIES_UP_SPRITE_INDEX_Y
-                progress_tuple = (0.0, -self._game.pacman.move_progress)
             case Direction.EAST:
+                if self._game.pacman.reversing:
+                    progress_tuple = (-self._game.pacman.move_progress, 0.0)
+                else:
+                    progress_tuple = (self._game.pacman.move_progress, 0.0)
                 self.__pacman_sprite_index_y = ENTITIES_RIGHT_SPRITE_INDEX_Y
-                progress_tuple = (self._game.pacman.move_progress, 0.0)
             case Direction.WEST:
+                if self._game.pacman.reversing:
+                    progress_tuple = (self._game.pacman.move_progress, 0.0)
+                else:
+                    progress_tuple = (-self._game.pacman.move_progress, 0.0)
                 self.__pacman_sprite_index_y = ENTITIES_LEFT_SPRITE_INDEX_Y
-                progress_tuple = (-self._game.pacman.move_progress, 0.0)
             case Direction.SOUTH:
+                if self._game.pacman.reversing:
+                    progress_tuple = (0.0, -self._game.pacman.move_progress)
+                else:
+                    progress_tuple = (0.0, self._game.pacman.move_progress)
                 self.__pacman_sprite_index_y = ENTITIES_DOWN_SPRITE_INDEX_Y
-                progress_tuple = (0.0, self._game.pacman.move_progress)
             case _:
                 raise ValueError("Invalid direction")
 
