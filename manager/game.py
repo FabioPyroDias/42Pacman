@@ -1,5 +1,4 @@
-"""
-Game manager for Pac-Man.
+""" Game manager for Pacman.
 
 Handles game initialization, level state management, score tracking
 and collisions across game loops.
@@ -19,8 +18,7 @@ from random import randint
 
 
 class Game():
-    """
-    Main controller for game state, maze layout, and entity interactions.
+    """ Main controller for game state, maze layout, and entity interactions.
 
     Attributes:
         config (dict[str, Any]): Global game parameters preserved for
@@ -36,17 +34,22 @@ class Game():
         level_timer (float): Total elapsed time in the active level.
         respawn_timer (float): Time delay during death sequence before
             resetting entities.
+        wave_index (int): Current wave index for scatter/chase timing cycles.
+        ghost_state (GhostState): Active global ghost state: Scatter or Chase.
         scatter_chase_timer (float): Timer that alternates
             global ghost states (Scatter/Chase).
         frightened_timer (float): Active timer for Ghosts frightened state.
         eaten_timer (dict[Ghost, float]): Respawn duration trackers per
             eaten ghost.
+        cheat_invincible (bool): Flag indicating if player
+            is invincible via cheat.
+        cheat_ghost_freeze (bool): Flag indicating if ghosts
+            are frozen via cheat.
         game_state (GameState): Active global game state.
     """
 
     def __init__(self, config: dict[str, Any]) -> None:
-        """
-        Initializes game state, entities setup, and ghost mode timers.
+        """Initializes game state, entities setup, and ghost mode timers.
 
         Args:
             config (dict[str, Any]): Configuration dictionary containing
@@ -163,12 +166,22 @@ class Game():
             if ghost.state == GhostState.EATEN:
                 continue
 
+            # Direct collision: Both Pacman and Ghost are in the same Cell
             direct_collision = ghost.pos == self.pacman.pos
+
+            # Swap Collision: Pacman and Ghost crossed paths
             swap_collision = (
                 self.pacman.pos == ghosts_previous_position[ghost]
                 and pacman_previous_position == ghost.pos
             )
 
+            # To avoid visual bugs, this collision checks where both
+            #   Pacman and the Ghost is in the maze.
+            # Takes into account the Cell itself, as well as the
+            #   current transition point between Cells.
+            # If the distance between Pacman and the Ghost is less or
+            #   equal to half a Cell, the exact middle point between Cells,
+            #   it's considered they collided
             pacman_visual = self.visual_position(self.pacman)
             ghost_visual = self.visual_position(ghost)
             distance_collision = (
@@ -239,6 +252,14 @@ class Game():
             self.game_state = GameState.RESPAWNING
 
     def update(self, delta: float) -> None:
+        """Updates main game loops, entities, timers, and game progression.
+
+        Args:
+            delta: Time step delta value.
+
+        Returns:
+            None
+        """
 
         if self.game_state == GameState.RESPAWNING:
             self.respawn_timer += delta
@@ -270,9 +291,14 @@ class Game():
                 self.setup_level()
             return
 
+        # Stores the previous Pacman position. This is needed for the
+        #   Swap Collision type.
+        # Only after do we update its position
         previous_pos_pacman = self.pacman.pos
         self.pacman.update(delta, self.maze)
 
+        # Stores all the ghosts previous positions.
+        # Again, needed for the Swap Collision type.
         previous_pos_ghosts = {}
         for ghost in self.ghosts:
             previous_pos_ghosts[ghost] = ghost.pos
@@ -415,22 +441,39 @@ class Game():
         Returns:
             None
         """
+
         self.scatter_chase_timer = 0.0
         self.frightened_timer = 0.0
         self.eaten_timer = {}
 
     def update_timers(self, delta: float) -> None:
+        """Updates level, scatter/chase, frightened, and eaten timers.
+
+        Args:
+            delta: Time step value.
+
+        Returns:
+            None
+        """
+
         self.level_timer += delta
         if self.level_timer >= self.config["level_max_time"]:
             self.game_state = GameState.RESTART_LEVEL
             return
 
+        # It just takes one Ghost to be Frightened to stop the
+        #   current ghost state timer.
         is_ghost_in_frightened = False
         for ghost in self.ghosts:
             if ghost.state == GhostState.FRIGHTENED:
                 is_ghost_in_frightened = True
                 break
 
+        # If there are no Ghosts Frightened, the current global ghost state
+        #   keeps increasing.
+        # When it reaches the maximum duration, it changes to the next state.
+        # If it's not the last wave and the ghost_state is CHASE, then the
+        #   wave is increased and changes to SCATTER.
         if not is_ghost_in_frightened:
             if self.wave_index < len(WAVE_TIMERS_SCATTER_CHASE):
                 self.scatter_chase_timer += delta
@@ -454,6 +497,10 @@ class Game():
                             if ghost.state != GhostState.EATEN:
                                 ghost.state = self.ghost_state
 
+        # If there's at least one Ghost Frightened, then timer_frightened
+        #   is increased.
+        # When it reaches the maximum duration, every ghost is back to
+        #   the current global state, except the EATEN ghosts.
         else:
             self.frightened_timer += delta
             if self.frightened_timer >= TIMER_FRIGHTENED:
@@ -462,6 +509,7 @@ class Game():
                     if ghost.state != GhostState.EATEN:
                         ghost.state = self.ghost_state
 
+        # Update the EATEN timer on the Ghosts that have been EATEN
         for ghost in self.ghosts:
             if ghost.state == GhostState.EATEN:
                 self.eaten_timer[ghost] += delta
@@ -470,6 +518,15 @@ class Game():
                     ghost.state = self.ghost_state
 
     def generate_maze(self) -> None:
+        """Generates a new MazeAdapter.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+
         configs = self.config["level"][self.current_level_index]
         chosen_seed = 0
         if self.current_level_index == 0:
@@ -481,22 +538,67 @@ class Game():
                                 chosen_seed)
 
     def toggle_pause(self) -> None:
+        """Toggles the game state between PLAYING and PAUSED.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+
         if self.game_state == GameState.PAUSED:
             self.game_state = GameState.PLAYING
         elif self.game_state == GameState.PLAYING:
             self.game_state = GameState.PAUSED
 
     def cheat_toggle_invincible(self) -> None:
+        """Toggles the player invincibility cheat state.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+
         self.cheat_invincible = not self.cheat_invincible
 
     def cheat_toggle_ghost_freeze(self) -> None:
+        """Toggles the ghost movement freeze cheat state.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+
         self.cheat_ghost_freeze = not self.cheat_ghost_freeze
 
     def cheat_skip_level(self) -> None:
+        """Skips the current level by forcing a transition to LEVEL_COMPLETE.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+
         if self.game_state == GameState.PLAYING:
             self.game_state = GameState.LEVEL_COMPLETE
 
     def cheat_add_lives(self) -> None:
+        """Increments the player's life counter by one.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+
         self.lives += 1
 
     def visual_position(self, entity: MovableEntity) -> tuple[float, float]:

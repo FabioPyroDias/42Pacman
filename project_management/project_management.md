@@ -1,9 +1,8 @@
-# Project Management — Pac-Man
-
 *This project has been created as part of the 42 curriculum by fda-cruz, jsouza.*
 
-## Overview
+# Project Management - Pac-Man
 
+## Overview
 
 This document covers: team organization, task division, a timeline derived from git history, key technical decisions actually made, risk analysis, and a running record of blocking points and bugs as they're found.
 
@@ -31,7 +30,7 @@ By the end of the project, several questions were made on how to improve the gam
 
 ## Task Division
 
-### Fabio — Game Engine
+### Fabio - Game Engine
 - `entities/entity.py`, `entities/pacman.py`, `entities/ghost.py`, `entities/collectable.py`
 - `parser/parser.py`, `parser/utils.py` - configuration loading, comment stripping, validation
 - `highscore/highscore.py` - persistent highscore system
@@ -39,7 +38,7 @@ By the end of the project, several questions were made on how to improve the gam
 - Cheat mode flags
 
 #### TODO -> JOÃO
-### Joao Souza — UI & Infrastructure
+### Joao Souza - UI & Infrastructure
 - Visual maze rendering, entity rendering, player animation
 - Menus: main menu, instructions, pause menu, game over, highscore view
 - GUI refactors (2026-09-11 / 2026-09-12)
@@ -78,7 +77,7 @@ By the end of the project, several questions were made on how to improve the gam
 | `Ghost.update()` has a signature incompatible with `MovableEntity.update(delta, maze)`, where it needs `pacman_pos`, `pacman_direction`, `blinky_pos` | Conscious decision, accepted because `Game` never treats `Pacman` and `Ghost` polymorphically |
 | `Ghost` keeps `self.maze` as a permanent attribute, unlike `Pacman` | `Ghost` is an autonomous state machine that must know the terrain to navigate every frame. `Pacman` never decides anything on its own, so it doesn't need it. Deliberate exception to the "pass everything as a parameter, never store" rule used for `pacman_pos`, `pacman_direction`, `blinky_pos` |
 | `decide_direction()` runs before `super().update()` in `Ghost.update()` | If it ran after, a `next_direction` set this frame would only be consumed on the next alignment. This would mean the ghost would always react one step late, or keep going straight because `next_direction` would be `None` at the moment it was needed |
-| `MazeAdapter.is_reachable(pos)` added specifically to exclude the central "42" block when picking random `FRIGHTENED` targets | The "42" pattern isn't a simple rectangle, so a bounding-box exclusion doesn't work, cells in that block are walled on all 4 sides, so `is_reachable` excludes them naturally |
+| `MazeAdapter.is_reachable(pos)` added specifically to exclude the central "42" block when picking random `FRIGHTENED` targets | The "42" pattern isn't a simple rectangle, so a bounding box exclusion doesn't work, cells in that block are walled on all 4 sides, so `is_reachable` excludes them naturally |
 | Ghost vs Ghost collisions are never checked | Matches original Pac-Man behavior. Visual overlap between ghosts is treated as a renderer concern, not a logic concern |
 | `Highscore.add_score()` does not internally call `qualifies_highscore()` | Keeps `Highscore` a pure data class with no opinion on when it should be called. This responsibility belongs to the caller, `main.py`, mirroring the `Game` and renderer separation |
 | Faulty config values are corrected field by field instead of the whole file | A single invalid key must not discard an otherwise valid config |
