@@ -141,9 +141,9 @@ class Game():
         self.game_state = GameState.PLAYING
 
     def check_collisions(self,
-                         pacman_previous_position: tuple[int, int],
+                         pacman_previous_position: tuple[float, float],
                          ghosts_previous_position: dict[Ghost,
-                                                        tuple[int, int]]
+                                                        tuple[float, float]]
                          ) -> bool:
         """
         Checks collisions between Pacman and ghosts or collectables.
@@ -157,26 +157,32 @@ class Game():
         Returns:
             bool: True if Pacman collided with a ghost. False otherwise.
         """
-
         # Check collisions between Pacman and Ghosts
         for ghost in self.ghosts:
             if ghost.state == GhostState.EATEN:
                 continue
 
-            direct_collision = ghost.pos == self.pacman.pos
-            swap_collision = (
-                self.pacman.pos == ghosts_previous_position[ghost]
-                and pacman_previous_position == ghost.pos
-            )
-
             pacman_visual = self.visual_position(self.pacman)
             ghost_visual = self.visual_position(ghost)
+            swap_collision = (
+                (
+                    (pacman_visual[0] - ghosts_previous_position[ghost][0]
+                     ) ** 2 + (
+                         pacman_visual[1] - ghosts_previous_position[ghost][1]
+                         ) ** 2) ** 0.5 <= COLLISION_DISTANCE_THRESHOLD
+                and (
+                    (pacman_previous_position[0] - ghost_visual[0]
+                     ) ** 2 + (
+                         pacman_previous_position[1] - ghost_visual[1]
+                         ) ** 2) ** 0.5 <= COLLISION_DISTANCE_THRESHOLD
+            )
+
             distance_collision = (
                 (pacman_visual[0] - ghost_visual[0]) ** 2
                 + (pacman_visual[1] - ghost_visual[1]) ** 2
             ) ** 0.5 <= COLLISION_DISTANCE_THRESHOLD
 
-            if direct_collision or swap_collision or distance_collision:
+            if distance_collision or swap_collision:
                 if ghost.state == GhostState.FRIGHTENED:
                     ghost.state = GhostState.EATEN
                     self.score += self.config["points_per_ghost"]
@@ -230,12 +236,15 @@ class Game():
             None
         """
 
-        if self.lives == 0:
+        if self.lives <= 0:
             self.game_state = GameState.GAME_OVER
         else:
             self.game_state = GameState.RESPAWNING
 
     def update(self, delta: float) -> None:
+
+        if self.game_state == GameState.PAUSED:
+            return
 
         if self.game_state == GameState.RESPAWNING:
             self.respawn_timer += delta
@@ -247,9 +256,6 @@ class Game():
                 self.game_state = GameState.PLAYING
             return
 
-        if self.game_state == GameState.PAUSED:
-            return
-
         if self.game_state == GameState.LEVEL_COMPLETE:
             self.current_level_index += 1
             self.generate_maze()
@@ -259,35 +265,29 @@ class Game():
         if self.game_state == GameState.VICTORY:
             return
 
-        if not self.cheat_ghost_freeze:
-            self.update_timers(delta)
-
         if self.game_state == GameState.RESTART_LEVEL:
             self.lives -= 1
-            if self.lives == 0:
+            if self.lives <= 0:
                 self.game_state = GameState.GAME_OVER
             else:
                 self.setup_level()
             return
 
-        previous_pos_pacman = self.pacman.pos
+        if not self.cheat_ghost_freeze:
+            self.update_timers(delta)
+
+        previous_pos_pacman = self.visual_position(self.pacman)
         self.pacman.update(delta, self.maze)
 
         previous_pos_ghosts = {}
         for ghost in self.ghosts:
-            previous_pos_ghosts[ghost] = ghost.pos
+            previous_pos_ghosts[ghost] = self.visual_position(ghost)
             if not self.cheat_ghost_freeze:
                 ghost.update_ghost(delta, self.pacman.pos,
                                    self.pacman.direction,
                                    self.ghosts[0].pos)
 
         if self.check_collisions(previous_pos_pacman, previous_pos_ghosts):
-            print("P pos:", self.visual_position(self.pacman), self.pacman.direction)
-            print("BLINKY pos:", self.visual_position(self.ghosts[0]), self.ghosts[0].direction)
-            print("PINKY pos:", self.visual_position(self.ghosts[1]), self.ghosts[1].direction)
-            print("INKY pos:", self.visual_position(self.ghosts[2]), self.ghosts[2].direction)
-            print("CLYDE pos:", self.visual_position(self.ghosts[3]), self.ghosts[3].direction)
-            print()
             self.check_game_over()
         else:
             self.check_level_complete()

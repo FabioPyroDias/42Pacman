@@ -44,6 +44,10 @@ class HighscoreView(BaseRender):
                     None,
                     int(self._win_size_y * 0.05)
                     )
+        self._back_button_font = pygame.font.SysFont(
+                    None,
+                    int(self._win_size_y * 0.03)
+                    )
 
         self._highscore_heigth = self._highscore_font.get_linesize()
         self.__fonts_loaded = True
@@ -81,6 +85,13 @@ class HighscoreView(BaseRender):
             0,
             COMMOM_TEXT_COLOR
         )
+
+        self._back_button_txt = self._back_button_font.render(
+            "<    ESC",
+            0,
+            COMMOM_TEXT_COLOR
+        )
+
         if not self._highscores:
             self._highscore_list = [
                 self._highscore_font.render(
@@ -101,6 +112,13 @@ class HighscoreView(BaseRender):
                         self._win_size_y // 6)
             )
         )
+
+        self._win.blit(
+            self._back_button_txt,
+            self._back_button_txt.get_rect(
+                    center=(self._win_size_x // 20,
+                            self._win_size_y // 20)
+                            ))
 
     def _render_highscores_text(self) -> None:
         for i, score in enumerate(self._highscore_list):

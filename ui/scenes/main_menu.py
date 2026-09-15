@@ -49,7 +49,7 @@ class MainMenu(BaseRender):
                         COMMOM_TEXT_COLOR
                         )
         self._footer_text = self._footer_font.render(
-            "H. Highscores  I. Instructions  ESC. Exit",
+            "H. Highscores       I. Instructions        ESC. Exit",
             0,
             COMMOM_TEXT_COLOR
             )

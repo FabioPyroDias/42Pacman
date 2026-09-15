@@ -40,6 +40,7 @@ class SceneState(Enum):
     HIGHSCORES_VIEW = 2
     GAMEPLAY = 3
     PAUSE = 4
-    GAMEOVER = 5
+    GAME_OVER = 5
     VICTORY = 6
     NAMEENTRY = 7
+    READY = 8

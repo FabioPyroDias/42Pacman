@@ -48,6 +48,11 @@ class Instructions(BaseRender):
                     int(self._win_size_y * 0.05)
                     )
 
+        self._back_button_font = pygame.font.SysFont(
+                    None,
+                    int(self._win_size_y * 0.03)
+                    )
+
         self._intructions_heigth = self._instructions_font.get_linesize()
         self.__fonts_loaded = True
 
@@ -61,6 +66,12 @@ class Instructions(BaseRender):
                 0,
                 COMMOM_TEXT_COLOR
                 )
+
+        self._back_button_txt = self._back_button_font.render(
+            "<    ESC",
+            0,
+            COMMOM_TEXT_COLOR
+        )
 
         self._instructions_list = [
             self._instructions_font.render(
@@ -79,6 +90,13 @@ class Instructions(BaseRender):
                 center=(self._win_size_x // 2,
                         self._win_size_y // 6)
                 ))
+
+        self._win.blit(
+            self._back_button_txt,
+            self._back_button_txt.get_rect(
+                    center=(self._win_size_x // 20,
+                            self._win_size_y // 20)
+                            ))
 
     def _render_commands(self) -> None:
         for i, instruction_txt in enumerate(self._instructions_list, 1):

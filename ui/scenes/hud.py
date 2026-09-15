@@ -65,6 +65,11 @@ class HUD(BaseRender):
             0,
             COMMOM_TEXT_COLOR
             )
+        self._timer_title = self._text_font.render(
+            "TIME",
+            0,
+            COMMOM_TEXT_COLOR
+        )
 
         self.__text_loaded = True
 
@@ -86,18 +91,52 @@ class HUD(BaseRender):
                 center=(self._win_size_x // 10, CELL_SIZE * 5 // 7))
         )
 
+    def _render_timer(self, time: float):
+        self._win.blit(
+            self._timer_title,
+            self._timer_title.get_rect(
+                center=(self._win_size_x * 9 // 10,
+                        self._win_size_y - CELL_SIZE
+                        + self._text_font.get_height())
+            )
+        )
+        rounded_time = round(time, 2)
+        rounded_time_len = len(str(rounded_time))
+        if rounded_time_len <= MAX_SCORE_DIGITS:
+            time_surface = self._text_font.render(
+                f"{rounded_time}",
+                0,
+                COMMOM_TEXT_COLOR)
+        else:
+            time_surface = self._text_font.render(
+                f"{rounded_time:.2e}",
+                0,
+                COMMOM_TEXT_COLOR)
+        self._win.blit(
+                time_surface,
+                time_surface.get_rect(
+                    center=(self._win_size_x * 9 // 10,
+                            self._win_size_y - CELL_SIZE
+                            + self._text_font.get_height() * 2)
+                )
+                )
+
     def _render_life(self, lives: int) -> None:
         for i in range(lives):
+            if i == 11:
+                break
             self._render_surface(
                 self._life,
-                (i * LIFE_ICON_SPACING,
+                (i * LIFE_ICON_SPACING + WALL_OFFSET,
                  self._win_size_y - CELL_SIZE + WALL_OFFSET
                  )
                  )
 
-    def render_hud(self, level: int, score: int, lives: int) -> None:
+    def render_hud(self, level: int, score: int,
+                   lives: int, timer: float) -> None:
         self.__load_assets()
         self.__load_text(level + 1, score)
+        self._render_timer(timer)
         self._render_life(lives)
         self._render_level_title()
         self._render_score()

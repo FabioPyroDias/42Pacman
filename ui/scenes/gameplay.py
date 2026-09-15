@@ -1,5 +1,5 @@
 import pygame
-from time import perf_counter
+from time import perf_counter, sleep
 from enums import Direction, GhostState, GameState
 from entities import Ghost, SuperPacgum, Pacgum
 from manager.game import Game
@@ -40,6 +40,8 @@ class Gameplay(BaseRender):
         self.__pacman_dead_sprite_index_y = PACMAN_DEATH_SPRITE_START_INDEX_Y
         self.__sprites_y = {ghost.id: 0 for ghost in self._game.ghosts}
         self.__sprites_x = {ghost.id: 0 for ghost in self._game.ghosts}
+        self.__last_ghost_state = {ghost.id: ghost.state
+                                   for ghost in self._game.ghosts}
         self._background: pygame.Surface | None = None
 
         now = perf_counter()
@@ -147,7 +149,7 @@ class Gameplay(BaseRender):
             if not final_line:
                 final_line = True
 
-    def _render_pacman(self, game_state: GameState) -> None:
+    def _render_pacman(self, game_state: GameState, stop: bool) -> None:
         if game_state in (GameState.PLAYING,
                           GameState.PAUSED):
             self.__pacman_dead_sprite_index_x = 0
@@ -155,19 +157,23 @@ class Gameplay(BaseRender):
                 PACMAN_DEATH_SPRITE_START_INDEX_Y)
             self._render_pacman_entity(
                 self.__pacman_sprites,
-                PACMAN_SPRITE_LAST_INDEX_X
+                PACMAN_SPRITE_LAST_INDEX_X,
+                stop
                 )
         else:
             self._render_entitie_death(
                 self.__pacman_sprites,
                 PACMAN_SPRITE_LAST_INDEX_X,
                 PACMAN_DEATH_SPRITE_LAST_INDEX_Y,
-                PACMAN_DEATH_SPRITE_START_INDEX_Y
+                PACMAN_DEATH_SPRITE_START_INDEX_Y,
+                stop
             )
 
-    def _render_ghosts(self, frightened_timer: float) -> None:
+    def _render_ghosts(self, frightened_timer: float, stop: bool) -> None:
         now = perf_counter()
-        if frightened_timer >= TIMER_FRIGHTENED * 0.9:
+        if frightened_timer == 0.0:
+            self.__flashing = False
+        elif frightened_timer >= TIMER_FRIGHTENED * 0.9:
             if now - self.__last_flash >= TIMER_FRIGHTENED * 0.01:
                 self.__flashing = not self.__flashing
                 self.__last_flash = now
@@ -184,20 +190,28 @@ class Gameplay(BaseRender):
                 self._render_scared_ghost(
                     self.__scared_ghost_sprite,
                     ghost,
-                    GHOST_SPRITE_LAST_INDEX_X
+                    GHOST_SPRITE_LAST_INDEX_X,
+                    stop
                     )
             elif ghost.state == GhostState.EATEN:
                 self._render_ghost(
                     self.__dead_ghost_sprite,
                     ghost,
-                    DEAD_GHOST_SPRITE_LAST_INDEX_X
+                    DEAD_GHOST_SPRITE_LAST_INDEX_X,
+                    stop
                     )
+                if self.__last_ghost_state[ghost.id] != ghost.state:
+                    self.__last_ghost_state[ghost.id] = ghost.state
+                    sleep(0.45)
             else:
                 self._render_ghost(
                     self.__ghost_assets[i],
                     ghost,
-                    GHOST_SPRITE_LAST_INDEX_X
+                    GHOST_SPRITE_LAST_INDEX_X,
+                    stop
                     )
+                if self.__last_ghost_state[ghost.id] != ghost.state:
+                    self.__last_ghost_state[ghost.id] = ghost.state
 
     def _render_pacgums(self) -> None:
         for pos in self._game.collectables:
@@ -213,29 +227,30 @@ class Gameplay(BaseRender):
                      pos[1] * CELL_SIZE + WALL_OFFSET))
 
     def _render_scared_ghost(self, sprite: pygame.Surface,
-                             entity: Ghost,
-                             last_index_x: int,) -> None:
+                             ghost: Ghost,
+                             last_index_x: int,
+                             stop: bool) -> None:
         progress_tuple: tuple[float, float]
-        match entity.direction:
+        match ghost.direction:
             case Direction.NORTH:
-                progress_tuple = (0.0, -entity.move_progress)
+                progress_tuple = (0.0, -ghost.move_progress)
             case Direction.EAST:
-                progress_tuple = (entity.move_progress, 0.0)
+                progress_tuple = (ghost.move_progress, 0.0)
             case Direction.SOUTH:
-                progress_tuple = (0.0, entity.move_progress)
+                progress_tuple = (0.0, ghost.move_progress)
             case Direction.WEST:
-                progress_tuple = (-entity.move_progress, 0.0)
+                progress_tuple = (-ghost.move_progress, 0.0)
             case _:
                 raise ValueError("Invalid direction")
 
         if self.__flashing:
             self._map_surface.blit(
                 sprite,
-                ((entity.pos[0]
+                ((ghost.pos[0]
                   + progress_tuple[0]) * CELL_SIZE + WALL_OFFSET,
-                 (entity.pos[1]
+                 (ghost.pos[1]
                   + progress_tuple[1]) * CELL_SIZE + WALL_OFFSET),
-                (self.__sprites_x[entity.id] * SPRITE_SIZE,
+                (self.__sprites_x[ghost.id] * SPRITE_SIZE,
                  FLASHING_GHOST_SPRITE_INDEX_Y * SPRITE_SIZE,
                  SPRITE_SIZE, SPRITE_SIZE)
                  )
@@ -243,27 +258,30 @@ class Gameplay(BaseRender):
         else:
             self._map_surface.blit(
                 sprite,
-                ((entity.pos[0]
+                ((ghost.pos[0]
                   + progress_tuple[0]) * CELL_SIZE + WALL_OFFSET,
-                 (entity.pos[1]
+                 (ghost.pos[1]
                   + progress_tuple[1]) * CELL_SIZE + WALL_OFFSET),
-                (self.__sprites_x[entity.id] * SPRITE_SIZE,
+                (self.__sprites_x[ghost.id] * SPRITE_SIZE,
                  SCARED_GHOST_SPRITE_INDEX_Y * SPRITE_SIZE,
                  SPRITE_SIZE, SPRITE_SIZE)
                  )
 
+        if stop:
+            return
         now = perf_counter()
         if not (
-             now - self.__last_frame_time[entity.id] >= self._animation_fps):
+             now - self.__last_frame_time[ghost.id] >= self._animation_fps):
             return
-        self.__last_frame_time[entity.id] = now
-        if self.__sprites_x[entity.id] == last_index_x:
-            self.__sprites_x[entity.id] = 0
+        self.__last_frame_time[ghost.id] = now
+        if self.__sprites_x[ghost.id] == last_index_x:
+            self.__sprites_x[ghost.id] = 0
         else:
-            self.__sprites_x[entity.id] += 1
+            self.__sprites_x[ghost.id] += 1
 
     def _render_ghost(self, sprite: pygame.Surface,
-                      ghost: Ghost, last_index_x: int) -> None:
+                      ghost: Ghost, last_index_x: int,
+                      stop: bool) -> None:
         progress_tuple: tuple[float, float]
         match ghost.direction:
             case Direction.NORTH:
@@ -305,6 +323,8 @@ class Gameplay(BaseRender):
              SPRITE_SIZE, SPRITE_SIZE)
             )
 
+        if stop:
+            return
         now = perf_counter()
         if not (now - self.__last_frame_time[ghost.id] >= self._animation_fps):
             return
@@ -315,7 +335,8 @@ class Gameplay(BaseRender):
             self.__sprites_x[ghost.id] += 1
 
     def _render_pacman_entity(self, sprite: pygame.Surface,
-                              last_index_x: int) -> None:
+                              last_index_x: int,
+                              stop: bool) -> None:
         progress_tuple: tuple[float, float]
         match self._game.pacman.direction:
             case Direction.NORTH:
@@ -356,6 +377,8 @@ class Gameplay(BaseRender):
              SPRITE_SIZE, SPRITE_SIZE)
             )
 
+        if stop:
+            return
         now = perf_counter()
         if not (now - self.__last_pacman_frame_time >= self._animation_fps):
             return
@@ -368,7 +391,8 @@ class Gameplay(BaseRender):
     def _render_entitie_death(self, sprite: pygame.Surface,
                               last_index_x: int,
                               last_index_y: int,
-                              start_index_y: int) -> None:
+                              start_index_y: int,
+                              stop: bool) -> None:
         progress_tuple: tuple[float, float]
         match self._game.pacman.direction:
             case Direction.NORTH:
@@ -404,6 +428,8 @@ class Gameplay(BaseRender):
              SPRITE_SIZE, SPRITE_SIZE)
              )
 
+        if stop:
+            return
         now = perf_counter()
         if not (now - self.__last_pacman_frame_time >= self._animation_fps):
             return
@@ -418,11 +444,12 @@ class Gameplay(BaseRender):
             self.__pacman_dead_sprite_index_x += 1
 
     def render_gameplay(self, frightened_timer: float,
-                        game_state: GameState) -> None:
+                        game_state: GameState,
+                        stop: bool = False) -> None:
         self.__update()
         self.__load_assets()
         self._render_map()
         self._render_pacgums()
-        self._render_pacman(game_state)
+        self._render_pacman(game_state, stop)
         if not game_state == GameState.RESPAWNING:
-            self._render_ghosts(frightened_timer)
+            self._render_ghosts(frightened_timer, stop)

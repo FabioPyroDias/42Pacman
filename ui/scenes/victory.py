@@ -20,7 +20,7 @@ class Victory(BaseRender):
 
         self._victory_font = pygame.font.SysFont(
             None,
-            int(self._win_size_y * 0.14)
+            int(self._win_size_y * 0.1)
         )
         self.__fonts_loaded = True
 
@@ -30,7 +30,7 @@ class Victory(BaseRender):
             return
 
         self._victory_text = self._victory_font.render(
-            "VICTORY!!!",
+            "CONGRATULATIONS!!!",
             0,
             VICTORY_TEXT_COLOR
         )

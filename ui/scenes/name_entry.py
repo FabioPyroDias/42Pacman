@@ -52,6 +52,11 @@ class NameEntry(BaseRender):
             None,
             int(self._text_box.get_height() * 0.6)
         )
+        self._back_button_font = pygame.font.SysFont(
+                    None,
+                    int(self._win_size_y * 0.03)
+                    )
+
         self.__fonts_loaded = True
 
     def __load_text(self, player_name: str) -> None:
@@ -78,6 +83,11 @@ class NameEntry(BaseRender):
             0,
             COMMOM_TEXT_COLOR
         )
+        self._back_button_txt = self._back_button_font.render(
+            "<    ESC",
+            0,
+            COMMOM_TEXT_COLOR
+        )
 
         self.__text_loaded = True
 
@@ -97,6 +107,12 @@ class NameEntry(BaseRender):
                         self._win_size_y // 6)
                 )
         )
+        self._win.blit(
+            self._back_button_txt,
+            self._back_button_txt.get_rect(
+                    center=(self._win_size_x // 20,
+                            self._win_size_y // 20)
+                            ))
         self._win.blit(
             self._player_name_text,
             self._player_name_rect

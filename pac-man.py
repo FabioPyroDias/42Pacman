@@ -5,7 +5,13 @@ from parser.parser import parser_configuration_file
 from manager.game import Game
 import pygame
 import time
+import os
 
+# TODO
+# adicionar "press enter to confirm"
+# arrumar a validacao do nome
+
+os.system("clear")
 running = True
 configs = parser_configuration_file("config.json")
 highscores = Highscore("highscores.json")
@@ -13,10 +19,8 @@ game = Game(configs)
 game.toggle_pause()
 gui = GUI((800, 600), "PAC-MAN", game, game.maze,
           (game.maze.width, game.maze.height))
-clock = pygame.time.Clock()
 
-active_scene = SceneState.MENU
-
+pause = False
 last_time = time.perf_counter()
 frame_duration = 1 / 60  # fps alvo
 elapsed = 0  # usado para travar fps
@@ -27,52 +31,63 @@ while running:
     now = time.perf_counter()
     delta = now - last_time
     last_time = now
-    clock.tick()  # debug (tirar depois)
 
-    game.update(0.028)  # 0.028
-    gui.update(active_scene, game.frightened_timer, game.current_level_index,
+    if (gui.active_scene != SceneState.READY
+            or game.game_state in (GameState.RESPAWNING,
+                                   GameState.RESTART_LEVEL)):
+        game.update(delta)
+        if pause and game.game_state == GameState.PLAYING:
+            gui.active_scene = SceneState.READY
+            game.toggle_pause()
+            pause = False
+    gui.update(game.frightened_timer, game.current_level_index,
                game.score, game.lives, game.game_state,
-               clock, player_name, highscores.scores)
+               player_name, highscores.scores, game.level_timer)
     for event in gui.get_event():
         if event.type == pygame.QUIT:
             running = False
+
         if event.type == pygame.KEYDOWN:
-            if active_scene == SceneState.MENU:
+            if gui.active_scene == SceneState.MENU:
                 match event.key:
                     case pygame.K_ESCAPE:
                         running = False
                     case pygame.K_h:
-                        active_scene = SceneState.HIGHSCORES_VIEW
+                        gui.active_scene = SceneState.HIGHSCORES_VIEW
                     case pygame.K_i:
-                        active_scene = SceneState.INSTRUCTIONS
+                        gui.active_scene = SceneState.INSTRUCTIONS
                     case pygame.K_SPACE:
-                        active_scene = SceneState.GAMEPLAY
-                        game.toggle_pause()
-            elif active_scene in (SceneState.HIGHSCORES_VIEW,
-                                  SceneState.INSTRUCTIONS):
+                        gui.active_scene = SceneState.READY
+                    case pygame.K_n:
+                        gui.active_scene = SceneState.NAMEENTRY
+
+            elif gui.active_scene in (SceneState.HIGHSCORES_VIEW,
+                                      SceneState.INSTRUCTIONS):
                 if event.key == pygame.K_ESCAPE:
-                    active_scene = SceneState.MENU
-            elif active_scene == SceneState.PAUSE:
+                    gui.active_scene = SceneState.MENU
+
+            elif gui.active_scene == SceneState.PAUSE:
                 if event.key == pygame.K_ESCAPE:
-                    active_scene = SceneState.MENU
+                    gui.active_scene = SceneState.MENU
                     game.score = 0
                     game.setup_level()
                     game.toggle_pause()
                 elif event.key == pygame.K_SPACE:
-                    active_scene = SceneState.GAMEPLAY
+                    gui.active_scene = SceneState.GAMEPLAY
                     game.toggle_pause()
 
-            elif active_scene in (SceneState.GAMEOVER,
-                                  SceneState.VICTORY):
+            elif gui.active_scene in (SceneState.GAME_OVER,
+                                      SceneState.VICTORY):
                 if event.key == pygame.K_DELETE:
-                    active_scene = SceneState.NAMEENTRY
+                    gui.active_scene = SceneState.NAMEENTRY
+                    print(gui.active_scene)
 
-            elif active_scene == SceneState.NAMEENTRY:
+            elif gui.active_scene == SceneState.NAMEENTRY:
                 if event.key == pygame.K_ESCAPE:
-                    active_scene = SceneState.MENU
+                    gui.active_scene = SceneState.MENU
                 elif event.key == pygame.K_RETURN:
                     highscores.add_score(player_name, game.score)
-                    active_scene = SceneState.HIGHSCORES_VIEW
+                    gui.active_scene = SceneState.HIGHSCORES_VIEW
                 else:
                     player_name = handle_name_input(
                         10,
@@ -80,10 +95,20 @@ while running:
                         event
                         )
 
-            else:
+            elif game.game_state == GameState.RESPAWNING:
+                continue
+
+            elif gui.active_scene == SceneState.READY:
+                continue
+
+            elif gui.active_scene == SceneState.GAMEPLAY:
                 match event.key:
+                    case pygame.K_i:
+                        game.cheat_toggle_invincible()
+                    case pygame.K_l:
+                        game.cheat_add_lives()
                     case pygame.K_SPACE:
-                        active_scene = SceneState.PAUSE
+                        gui.active_scene = SceneState.PAUSE
                         game.toggle_pause()
                     case pygame.K_w | pygame.K_UP:
                         game.set_player_direction(Direction.NORTH)
@@ -93,9 +118,17 @@ while running:
                         game.set_player_direction(Direction.SOUTH)
                     case pygame.K_a | pygame.K_LEFT:
                         game.set_player_direction(Direction.WEST)
-    if game.game_state == GameState.GAME_OVER:
-        active_scene = SceneState.GAMEOVER
-    elif game.game_state == GameState.VICTORY:
-        active_scene = SceneState.VICTORY
+                    case pygame.K_v:
+                        game.game_state = GameState.VICTORY
+
+    if (game.game_state == GameState.GAME_OVER
+            and gui.active_scene == SceneState.GAMEPLAY):
+        gui.active_scene = SceneState.GAME_OVER
+    elif (game.game_state == GameState.VICTORY
+            and gui.active_scene == SceneState.GAMEPLAY):
+        gui.active_scene = SceneState.VICTORY
+    elif game.game_state in (GameState.RESTART_LEVEL,
+                             GameState.RESPAWNING):
+        pause = True
     elapsed = time.perf_counter() - now
 pygame.quit()

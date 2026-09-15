@@ -1,6 +1,7 @@
 """Base entity and movable entity classes for grid-based game objects."""
 
 from enums import Direction
+from consts import ENTITY_SPEED
 from maze.maze_adapter import MazeAdapter
 
 
@@ -141,7 +142,7 @@ class MovableEntity(Entity):
                 self.next_direction = None
                 self.reversing = False
             else:
-                self.move_progress -= delta
+                self.move_progress -= delta * ENTITY_SPEED
                 if self.move_progress <= 0.0:
                     self.move_progress = 0.0
                     self.reversing = False
@@ -153,7 +154,7 @@ class MovableEntity(Entity):
                 if self.next_direction:
                     self.direction = self.next_direction
                     self.next_direction = None
-                self.move_progress += delta
+                self.move_progress += delta * ENTITY_SPEED
         elif self.move_progress > 0.0 and self.move_progress <= 1.0:
             if (self.next_direction
                and abs(self.direction.value - self.next_direction.value) == 2):
@@ -161,7 +162,7 @@ class MovableEntity(Entity):
                 self.next_direction = None
                 self.reversing = True
             else:
-                self.move_progress += delta
+                self.move_progress += delta * ENTITY_SPEED
 
         if self.move_progress >= 1.0:
             self.pos = self.get_next_position_on(self.pos, self.direction)
