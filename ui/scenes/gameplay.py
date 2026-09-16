@@ -1,5 +1,5 @@
 import pygame
-from time import perf_counter, sleep
+from time import perf_counter
 from enums import Direction, GhostState, GameState
 from entities import Ghost, SuperPacgum, Pacgum
 from manager.game import Game
@@ -33,6 +33,8 @@ class Gameplay(BaseRender):
         self.__assets_loaded = False
         self.__updated = False
         self.__flashing = False
+        self.__wait = False
+        self.__wait_timer = 0.0
         self.__last_flash = 0.0
         self.__pacman_sprite_index_x = 0
         self.__pacman_sprite_index_y = 0
@@ -73,7 +75,13 @@ class Gameplay(BaseRender):
             "assets/scared_ghost.xpm"
         )
 
-    def __update(self) -> None:
+    def __update(self, maze: MazeAdapter) -> None:
+        if self._maze != maze:
+            self._maze = maze
+            map_size_x, map_size_y = self._maze.get_size()
+            self._map_size_x = map_size_x * CELL_SIZE
+            self._map_size_y = map_size_y * CELL_SIZE
+            self.__updated = False
         if self._win.get_size() != (self._map_size_x,
                                     self._map_size_y + CELL_SIZE * 2):
             self._win = pygame.display.set_mode(
@@ -202,7 +210,6 @@ class Gameplay(BaseRender):
                     )
                 if self.__last_ghost_state[ghost.id] != ghost.state:
                     self.__last_ghost_state[ghost.id] = ghost.state
-                    sleep(0.45)
             else:
                 self._render_ghost(
                     self.__ghost_assets[i],
@@ -444,12 +451,30 @@ class Gameplay(BaseRender):
             self.__pacman_dead_sprite_index_x += 1
 
     def render_gameplay(self, frightened_timer: float,
-                        game_state: GameState,
+                        game_state: GameState, maze: MazeAdapter,
                         stop: bool = False) -> None:
-        self.__update()
+        self.__update(maze)
         self.__load_assets()
         self._render_map()
         self._render_pacgums()
+        if not self.__wait:
+            for ghost in self._game.ghosts:
+                if (self.__last_ghost_state[ghost.id] != ghost.state
+                        and ghost.state == GhostState.EATEN):
+                    stop = True
+                    self.__wait = True
+        if self.__wait:
+            if self.__wait_timer == 0.0:
+                self.__wait_timer = perf_counter()
+            if perf_counter() - self.__wait_timer >= 0.45:
+                self.__wait = False
+                self.__wait_timer = 0.0
+                self._game.toggle_pause()
+            else:
+                if game_state != GameState.PAUSED:
+                    self._game.toggle_pause()
+                stop = True
+
         self._render_pacman(game_state, stop)
         if not game_state == GameState.RESPAWNING:
             self._render_ghosts(frightened_timer, stop)

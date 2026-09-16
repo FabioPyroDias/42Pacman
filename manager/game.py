@@ -257,9 +257,12 @@ class Game():
             return
 
         if self.game_state == GameState.LEVEL_COMPLETE:
-            self.current_level_index += 1
-            self.generate_maze()
-            self.setup_level()
+            try:
+                self.current_level_index += 1
+                self.generate_maze()
+                self.setup_level()
+            except IndexError:
+                self.game_state = GameState.VICTORY
             return
 
         if self.game_state == GameState.VICTORY:
@@ -489,7 +492,7 @@ class Game():
     def toggle_pause(self) -> None:
         if self.game_state == GameState.PAUSED:
             self.game_state = GameState.PLAYING
-        elif self.game_state == GameState.PLAYING:
+        elif self.game_state in (GameState.PLAYING, GameState.GAME_OVER):
             self.game_state = GameState.PAUSED
 
     def cheat_toggle_invincible(self) -> None:

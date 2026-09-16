@@ -7,9 +7,6 @@ import pygame
 import time
 import os
 
-# TODO
-# adicionar "press enter to confirm"
-# arrumar a validacao do nome
 
 os.system("clear")
 running = True
@@ -20,11 +17,14 @@ game.toggle_pause()
 gui = GUI((800, 600), "PAC-MAN", game, game.maze,
           (game.maze.width, game.maze.height))
 
+invalid_name = False
 pause = False
+invalid_time_start = 0.0
 last_time = time.perf_counter()
 frame_duration = 1 / 60  # fps alvo
 elapsed = 0  # usado para travar fps
 player_name = ""
+
 while running:
     if elapsed < frame_duration:  # para travar fps
         time.sleep(frame_duration - elapsed)
@@ -40,9 +40,14 @@ while running:
             gui.active_scene = SceneState.READY
             game.toggle_pause()
             pause = False
+    if gui._maze != game.maze:
+        gui.active_scene = SceneState.READY
+        game.toggle_pause()
+        pause = False
     gui.update(game.frightened_timer, game.current_level_index,
                game.score, game.lives, game.game_state,
-               player_name, highscores.scores, game.level_timer)
+               player_name, highscores.scores, game.level_timer, game.maze,
+               invalid_name)
     for event in gui.get_event():
         if event.type == pygame.QUIT:
             running = False
@@ -57,9 +62,12 @@ while running:
                     case pygame.K_i:
                         gui.active_scene = SceneState.INSTRUCTIONS
                     case pygame.K_SPACE:
+                        game.score = 0
+                        game.setup_level()
+                        game.toggle_pause()
                         gui.active_scene = SceneState.READY
                     case pygame.K_n:
-                        gui.active_scene = SceneState.NAMEENTRY
+                        gui.active_scene = SceneState.NAME_ENTRY
 
             elif gui.active_scene in (SceneState.HIGHSCORES_VIEW,
                                       SceneState.INSTRUCTIONS):
@@ -79,16 +87,22 @@ while running:
             elif gui.active_scene in (SceneState.GAME_OVER,
                                       SceneState.VICTORY):
                 if event.key == pygame.K_DELETE:
-                    gui.active_scene = SceneState.NAMEENTRY
+                    gui.active_scene = SceneState.NAME_ENTRY
                     print(gui.active_scene)
 
-            elif gui.active_scene == SceneState.NAMEENTRY:
+            elif gui.active_scene == SceneState.NAME_ENTRY:
                 if event.key == pygame.K_ESCAPE:
                     gui.active_scene = SceneState.MENU
+                    player_name = ""
                 elif event.key == pygame.K_RETURN:
-                    highscores.add_score(player_name, game.score)
-                    gui.active_scene = SceneState.HIGHSCORES_VIEW
-                else:
+                    invalid_name = not highscores.validate_name(player_name)
+                    if not invalid_name:
+                        highscores.add_score(player_name, game.score)
+                        gui.active_scene = SceneState.HIGHSCORES_VIEW
+                        player_name = ""
+                    else:
+                        invalid_time_start = time.perf_counter()
+                elif not invalid_name:
                     player_name = handle_name_input(
                         10,
                         player_name,
@@ -103,6 +117,8 @@ while running:
 
             elif gui.active_scene == SceneState.GAMEPLAY:
                 match event.key:
+                    case pygame.K_s:
+                        game.cheat_skip_level()
                     case pygame.K_i:
                         game.cheat_toggle_invincible()
                     case pygame.K_l:
@@ -130,5 +146,9 @@ while running:
     elif game.game_state in (GameState.RESTART_LEVEL,
                              GameState.RESPAWNING):
         pause = True
+    if invalid_name:
+        if now - invalid_time_start >= 1:
+            invalid_time_start = 0.0
+            invalid_name = False
     elapsed = time.perf_counter() - now
 pygame.quit()

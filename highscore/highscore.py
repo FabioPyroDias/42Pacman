@@ -88,6 +88,9 @@ class Highscore():
             if not (character.isalnum() or character == " "):
                 return False
 
+        if all(c == " " for c in player_name):
+            return False
+
         return True
 
     def add_score(self, player_name: str, score: int) -> None:

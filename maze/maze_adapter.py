@@ -179,3 +179,12 @@ class MazeAdapter():
             # Going right
             else:
                 return not (current_cell.e or next_cell.w)
+
+    def get_size(self) -> tuple[int, int]:
+        """
+        Returns the dimensions of the maze grid.
+
+        Returns:
+            tuple[int, int]: Width and height of the maze (columns, rows).
+        """
+        return (len(self.maze[0]), len(self.maze))

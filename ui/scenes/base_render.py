@@ -17,6 +17,7 @@ class BaseRender(ABC):
         self._win_size_x = win_size_x
         self._win_size_y = win_size_y
         self._maze = maze
+        self._last_maze = maze.maze
         self._win = pygame.display.set_mode((self._win_size_x,
                                              self._win_size_y),
                                             pygame.NOFRAME)

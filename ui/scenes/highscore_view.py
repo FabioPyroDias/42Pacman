@@ -13,7 +13,6 @@ class HighscoreView(BaseRender):
                  game: Game, maze: MazeAdapter,
                  **kargs: object) -> None:
         super().__init__(win_size, title, game, maze, **kargs)
-        self._highscores: list[dict[str, str | int]] | None = None
         self.__updated = False
         self.__fonts_loaded = False
         self.__text_loaded = False
@@ -54,29 +53,27 @@ class HighscoreView(BaseRender):
 
     def __load_text(self, highscores: list[dict[str, str | int]]) -> None:
         self.__load_fonts()
-        if self._highscores != highscores:
-            self._highscores = highscores
-            highscores_list: list[str] = []
-            for highscore in self._highscores:
-                name = highscore["name"]
-                score = highscore["score"]
-                assert isinstance(score, int) and isinstance(name, str)
-                if len(str(score)) >= MAX_SCORE_DIGITS:
-                    highscores_list.append(f"{name} " + "." * abs(
-                        len(
-                            name + f"{score:.2e}"
-                            ) + 2 - EXPECTECTED_HIGHSCORES_LEN
-                        ) + f" {score:.2e}")
-                else:
-                    highscores_list.append(f"{name} " + "." * abs(
-                        len(name + f"{score}") + 2 - EXPECTECTED_HIGHSCORES_LEN
-                        ) + f" {score}")
-            self._highscore_list = [
-                self._highscore_font.render(
-                    score,
-                    0,
-                    COMMOM_TEXT_COLOR
-                ) for score in highscores_list
+        highscores_list: list[str] = []
+        for highscore in highscores:
+            name = highscore["name"]
+            score = highscore["score"]
+            assert isinstance(score, int) and isinstance(name, str)
+            if len(str(score)) >= MAX_SCORE_DIGITS:
+                highscores_list.append(f"{name} " + "." * abs(
+                    len(
+                        name + f"{score:.2e}"
+                        ) + 2 - EXPECTECTED_HIGHSCORES_LEN
+                    ) + f" {score:.2e}")
+            else:
+                highscores_list.append(f"{name} " + "." * abs(
+                    len(name + f"{score}") + 2 - EXPECTECTED_HIGHSCORES_LEN
+                    ) + f" {score}")
+        self._highscore_list = [
+            self._highscore_font.render(
+                score,
+                0,
+                COMMOM_TEXT_COLOR
+            ) for score in highscores_list
             ]
         if self.__text_loaded:
             return
@@ -92,7 +89,7 @@ class HighscoreView(BaseRender):
             COMMOM_TEXT_COLOR
         )
 
-        if not self._highscores:
+        if not highscores:
             self._highscore_list = [
                 self._highscore_font.render(
                     "Claim the top spot",

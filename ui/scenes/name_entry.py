@@ -52,7 +52,7 @@ class NameEntry(BaseRender):
             None,
             int(self._text_box.get_height() * 0.6)
         )
-        self._back_button_font = pygame.font.SysFont(
+        self._hint_button_font = pygame.font.SysFont(
                     None,
                     int(self._win_size_y * 0.03)
                     )
@@ -83,12 +83,21 @@ class NameEntry(BaseRender):
             0,
             COMMOM_TEXT_COLOR
         )
-        self._back_button_txt = self._back_button_font.render(
+        self._back_button_txt = self._hint_button_font.render(
             "<    ESC",
             0,
             COMMOM_TEXT_COLOR
         )
-
+        self._enter_button_txt = self._hint_button_font.render(
+            "press ENTER to confirm",
+            0,
+            COMMOM_TEXT_COLOR
+        )
+        self._invalid_name_txt = self._name_entry_font.render(
+            "Invalid Name",
+            0,
+            COMMOM_TEXT_COLOR
+        )
         self.__text_loaded = True
 
     def _render_text_box(self) -> None:
@@ -99,20 +108,34 @@ class NameEntry(BaseRender):
                         self._win_size_y // 2))
         )
 
-    def _render_texts(self, player_name: str) -> None:
+    def _render_texts(self, player_name: str, invalid_name: bool) -> None:
         self._win.blit(
             self._name_title,
             self._name_title.get_rect(
                 center=(self._win_size_x // 2,
                         self._win_size_y // 6)
-                )
-        )
+                ))
         self._win.blit(
             self._back_button_txt,
             self._back_button_txt.get_rect(
                     center=(self._win_size_x // 20,
                             self._win_size_y // 20)
                             ))
+        self._win.blit(
+            self._enter_button_txt,
+            self._enter_button_txt.get_rect(
+                    center=(self._win_size_x // 2,
+                            self._win_size_y * 4 // 6)
+                            ))
+        if invalid_name:
+            self._win.blit(
+                self._invalid_name_txt,
+                self._invalid_name_txt.get_rect(
+                    center=(self._win_size_x // 2,
+                            self._win_size_y // 2)
+                )
+            )
+            return
         self._win.blit(
             self._player_name_text,
             self._player_name_rect
@@ -136,10 +159,10 @@ class NameEntry(BaseRender):
             self.__blink = not self.__blink
             self.__last_blink = now
 
-    def render_name_entry(self, player_name: str) -> None:
+    def render_name_entry(self, player_name: str, invalid_name: bool) -> None:
         self.__update()
         self.__load_text(player_name)
         assert self._background
         self._win.blit(self._background, (0, 0))
         self._render_text_box()
-        self._render_texts(player_name)
+        self._render_texts(player_name, invalid_name)
