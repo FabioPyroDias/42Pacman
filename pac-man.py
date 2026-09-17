@@ -1,3 +1,5 @@
+"""Pac-Man application entry point."""
+
 import sys
 import time
 import pygame

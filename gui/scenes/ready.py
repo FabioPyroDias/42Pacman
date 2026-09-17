@@ -1,3 +1,5 @@
+"""Ready countdown scene rendering."""
+
 import pygame
 import time
 from manager.game import Game

@@ -1,3 +1,5 @@
+"""Base rendering utilities for GUI scenes."""
+
 import os
 import pygame
 from abc import ABC

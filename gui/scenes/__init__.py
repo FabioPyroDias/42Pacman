@@ -1,3 +1,5 @@
+"""Scene mixin exports used by the GUI."""
+
 from .main_menu import MainMenu
 from .instructions import Instructions
 from .gameplay import Gameplay

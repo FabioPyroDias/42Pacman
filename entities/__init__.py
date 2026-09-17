@@ -1,3 +1,5 @@
+"""Entity package exports for gameplay objects."""
+
 from .entity import Entity, MovableEntity
 from .collectable import Collectable, Pacgum, SuperPacgum
 from .ghost import Blinky, Inky, Pinky, Clyde, Ghost

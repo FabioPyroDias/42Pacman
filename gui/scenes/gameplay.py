@@ -1,3 +1,5 @@
+"""Gameplay scene rendering and animations."""
+
 import pygame
 from time import perf_counter
 from enums import Direction, GhostState, GameState

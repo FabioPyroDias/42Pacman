@@ -1,3 +1,5 @@
+"""Victory scene rendering."""
+
 import pygame
 from maze.maze_adapter import MazeAdapter
 from manager.game import Game

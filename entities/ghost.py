@@ -1,3 +1,5 @@
+"""Ghost entities and AI behavior logic."""
+
 from maze.maze_adapter import MazeAdapter
 from entities.entity import MovableEntity
 from enums import Direction, GhostState

@@ -1,3 +1,5 @@
+"""HUD scene rendering and status overlays."""
+
 import pygame
 from manager.game import Game
 from maze.maze_adapter import MazeAdapter

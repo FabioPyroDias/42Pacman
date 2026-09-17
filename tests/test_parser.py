@@ -1,3 +1,5 @@
+"""Tests for configuration parser behavior."""
+
 from parser.parser import parser_configuration_file
 import sys
 
