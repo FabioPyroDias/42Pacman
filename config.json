@@ -1,8 +1,8 @@
 {
     "highscore_filename": "highscores.json",
     "level": [
-        {"width": 14, "height": 14, "number_of_pacgums": 174},
-        {"width": 16, "height": 16, "number_of_pacgums": 234},
+		{"width": 16, "height": 16, "number_of_pacgums": 234},
+        {"width": 9, "height": 9, "number_of_pacgums": 81},
         {"width": 18, "height": 18, "number_of_pacgums": 302},
         {"width": 20, "height": 20, "number_of_pacgums": 378},
         {"width": 22, "height": 22, "number_of_pacgums": 462},
@@ -12,7 +12,7 @@
         {"width": 22, "height": 22, "number_of_pacgums": 462},
         {"width": 22, "height": 22, "number_of_pacgums": 462}
     ],
-    "lives": 1,
+    "lives": 3,
     "points_per_pacgum": 10,
     "points_per_super_pacgum": 50,
     "points_per_ghost": 200,

@@ -5,7 +5,7 @@ from maze.maze_adapter import MazeAdapter
 from .base_render import BaseRender
 from consts import (
     READY_COLOR, NUMBERS_COLOR, GO_COLOR,
-    READY_STEP_DURATION, CELL_SIZE
+    READY_STEP_DURATION, CELL_SIZE, MIN_MAZE_SIZE_FOR_42
 )
 
 
@@ -67,28 +67,31 @@ class Ready(BaseRender):
         )
 
     def _render_number(self, start_time: float, now: float) -> None:
+        maze_x, maze_y = self.maze.get_size()
+        pos_x = self._win_size_x // 2
+        pos_y = self._win_size_y // 2
+        if maze_x >= MIN_MAZE_SIZE_FOR_42 and maze_y >= MIN_MAZE_SIZE_FOR_42:
+            pos_x = self._win_size_x // 2 - CELL_SIZE // 2
+            pos_y = self._win_size_y // 2
         if now - start_time >= READY_STEP_DURATION * 4:
             self._win.blit(
                 self._1_txt,
                 self._1_txt.get_rect(
-                    center=(self._win_size_x // 2 - CELL_SIZE // 2,
-                            self._win_size_y // 2)
+                    center=(pos_x, pos_y)
                 )
             )
         elif now - start_time >= READY_STEP_DURATION * 3:
             self._win.blit(
                 self._2_txt,
                 self._2_txt.get_rect(
-                    center=(self._win_size_x // 2 - CELL_SIZE // 2,
-                            self._win_size_y // 2)
+                    center=(pos_x, pos_y)
                 )
             )
         elif now - start_time >= READY_STEP_DURATION * 2:
             self._win.blit(
                 self._3_txt,
                 self._3_txt.get_rect(
-                    center=(self._win_size_x // 2 - CELL_SIZE // 2,
-                            self._win_size_y // 2)
+                    center=(pos_x, pos_y)
                 )
             )
 

@@ -9,8 +9,8 @@ from consts import (
 
 class Victory(BaseRender):
     def __init__(self, win_size: tuple[int, int], title: str,
-                 game: Game, maze: MazeAdapter, **kargs: object) -> None:
-        super().__init__(win_size, title, game, maze, **kargs)
+                 game: Game, maze: MazeAdapter) -> None:
+        super().__init__(win_size, title, game, maze)
         self.__fonts_loaded = False
         self.__text_loaded = False
 

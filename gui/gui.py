@@ -16,24 +16,27 @@ class GUI(Gameplay, HUD, MainMenu, Instructions,
           HighscoreView, PauseMenu, GameOver, Victory,
           NameEntry, Ready):
     def __init__(self, win_size: tuple[int, int], title: str,
-                 game: Game, maze: MazeAdapter,
-                 map_size: tuple[int, int]) -> None:
-        super().__init__(win_size, title, game, maze, map_size=map_size)
+                 game: Game, maze: MazeAdapter) -> None:
+        super().__init__(win_size, title, game, maze)
         self.active_scene = SceneState.MENU
+        self.invalid_player_name = False
         self.__ready = True
         self.__start_time = 0.0
 
     def update(self, frightened_timer: float, level: int,
                score: int, lives: int, game_state: GameState,
                player_name: str, highscore: list[dict[str, str | int]],
-               timer: float, maze: MazeAdapter, invalid_name: bool) -> None:
+               timer: float, maze: MazeAdapter) -> None:
+
         if (not self.__ready
                 and game_state not in (GameState.GAME_OVER,
                                        GameState.VICTORY)):
             self.active_scene = SceneState.GAMEPLAY
             self.__ready = True
             self._game.toggle_pause()
+
         match self.active_scene:
+
             case SceneState.MENU:
                 self.render_menu()
 
@@ -45,12 +48,12 @@ class GUI(Gameplay, HUD, MainMenu, Instructions,
 
             case SceneState.GAMEPLAY:
                 self.render_gameplay(frightened_timer, game_state, maze)
-                self.render_hud(level, score, lives, timer)
+                self.render_hud(level, score, lives, timer, game_state)
 
             case SceneState.READY:
                 self.render_gameplay(frightened_timer, game_state, maze,
                                      True)
-                self.render_hud(level, score, lives, timer)
+                self.render_hud(level, score, lives, timer, game_state)
                 if self.__start_time == 0.0:
                     self.__start_time = time.perf_counter()
                 self.render_ready(self.__start_time)
@@ -82,10 +85,14 @@ class GUI(Gameplay, HUD, MainMenu, Instructions,
                 self.render_victory()
 
             case SceneState.NAME_ENTRY:
-                self.render_name_entry(player_name, invalid_name)
+                if self.invalid_player_name:
+                    if self.__start_time == 0.0:
+                        self.__start_time = time.perf_counter()
+                    if time.perf_counter() - self.__start_time >= 1:
+                        self.invalid_player_name = False
+                        self.__start_time = 0.0
+                self.render_name_entry(player_name, self.invalid_player_name)
 
-            case _:
-                raise Exception(f"{self.active_scene} not implemented")
         pygame.display.update()
 
     def get_event(self) -> list[pygame.event.Event]:

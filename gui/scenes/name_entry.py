@@ -11,8 +11,8 @@ from consts import (
 
 class NameEntry(BaseRender):
     def __init__(self, win_size: tuple[int, int], title: str,
-                 game: Game, maze: MazeAdapter, **kargs: object) -> None:
-        super().__init__(win_size, title, game, maze, **kargs)
+                 game: Game, maze: MazeAdapter) -> None:
+        super().__init__(win_size, title, game, maze)
         self.__player_name = ""
         self.__updated = False
         self.__fonts_loaded = False
@@ -166,3 +166,15 @@ class NameEntry(BaseRender):
         self._win.blit(self._background, (0, 0))
         self._render_text_box()
         self._render_texts(player_name, invalid_name)
+
+    def handle_name_input(self, max_len: int, name: str,
+                          event: pygame.event.Event) -> str:
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_BACKSPACE:
+                return name[:-1] if name else ''
+            letter: str = event.unicode
+            if letter.isalnum() or letter == " ":
+                return name + letter if len(name) < max_len else name
+            elif event.key == pygame.K_RETURN:
+                return name
+        return name

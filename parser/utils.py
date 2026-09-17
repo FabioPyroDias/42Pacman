@@ -6,7 +6,8 @@ from consts import (SAFE_DEFAULTS, PATTERN_42_CELL_COUNT, MAZE_CORNERS,
                     MIN_LIVES, MAX_LIVES, MIN_POINTS_PACGUM,
                     MAX_POINTS_PACGUM, MIN_POINTS_SUPER_PACGUM,
                     MAX_POINTS_SUPER_PACGUM, MIN_POINTS_GHOST,
-                    MAX_POINTS_GHOST, MIN_LEVEL_TIME, MAX_LEVEL_TIME)
+                    MAX_POINTS_GHOST, MIN_LEVEL_TIME, MAX_LEVEL_TIME,
+                    MIN_MAZE_SIZE_FOR_42)
 
 
 def is_valid_highscore_filename(value: Any) -> bool:
@@ -34,8 +35,10 @@ def is_valid_level(value: Any) -> bool:
     Checks if the input is a list with at least 10 items, where each item is a
         dictionary containing valid 'width' (MIN_DIMENSIONS - MAX_DIMENSIONS),
         'height' (MIN_DIMENSIONS - MAX_DIMENSIONS), and 'number_of_pacgums'
-        (width * height - PATTERN_42_CELL_COUNT - MAZE_CORNERS)
-        settings.
+        must equal width * height, minus PATTERN_42_CELL_COUNT
+        and MAZE_CORNERS when both width and height are >= 14
+        (maze large enough for the "42" pattern),
+        otherwise width * height alone.
 
     Args:
         value (Any): The level configuration value to validate.
@@ -72,12 +75,17 @@ def is_valid_level(value: Any) -> bool:
            or value_height > MAX_DIMENSIONS):
             return False
 
-        max_pacgums = (value_width * value_height
-                       - PATTERN_42_CELL_COUNT - MAZE_CORNERS)
+        if (value_height >= MIN_MAZE_SIZE_FOR_42
+                and value_width >= MIN_MAZE_SIZE_FOR_42):
+            max_pacgums = (value_width * value_height
+                           - PATTERN_42_CELL_COUNT - MAZE_CORNERS)
+        else:
+            max_pacgums = value_width * value_height
 
         if not isinstance(value_number_of_pacgums, int):
             return False
         if value_number_of_pacgums != max_pacgums:
+            print(level)
             return False
 
     return True

@@ -149,9 +149,9 @@ class Game():
         Checks collisions between Pacman and ghosts or collectables.
 
         Args:
-            pacman_previous_position (tuple[int, int]): Pacman position
+            pacman_previous_position (tuple[float, float]): Pacman position
                 before update.
-            ghosts_previous_position (dict[Ghost, tuple[int, int]]): Ghost
+            ghosts_previous_position (dict[Ghost, tuple[float, float]]): Ghost
                 positions before update.
 
         Returns:
@@ -525,8 +525,26 @@ class Game():
         """
 
         delta_x, delta_y = DIRECTION_VECTORS[entity.direction]
+        if entity.reversing:
+            delta_x, delta_y = -delta_x, -delta_y
 
         return (
             entity.pos[0] + delta_x * entity.move_progress,
             entity.pos[1] + delta_y * entity.move_progress,
         )
+
+    def reset_game(self) -> None:
+        """
+        Reset the game to its initial state.
+
+        Restarts from the first level with a fresh score, regenerates
+        the maze, and resets timers, ghosts, and pacman to their
+        starting state.
+        """
+        self.current_level_index = 0
+        self.score = 0
+        self.generate_maze()
+        self.setup_level()
+        self.reset_timers()
+        self.reset_ghosts()
+        self.reset_pacman()

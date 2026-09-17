@@ -16,6 +16,7 @@ from consts import (
     INKY_SPRITE_PATH, CLYDE_SPRITE_PATH, FT_BACKGROUND_COLOR,
     DEAD_GHOST_SPRITE_LAST_INDEX_X, TIMER_FRIGHTENED,
     FLASHING_GHOST_SPRITE_INDEX_Y, SCARED_GHOST_SPRITE_INDEX_Y,
+    DEATH_FREEZE_DURATION
     )
 
 
@@ -24,12 +25,8 @@ Coordinates = tuple[int, int]
 
 class Gameplay(BaseRender):
     def __init__(self, win_size: tuple[int, int], title: str,
-                 game: Game, maze: MazeAdapter,
-                 map_size: tuple[int, int], **kargs: object) -> None:
-        super().__init__(win_size, title, game, maze, **kargs)
-        map_size_x, map_size_y = map_size
-        self._map_size_x = map_size_x * CELL_SIZE
-        self._map_size_y = map_size_y * CELL_SIZE
+                 game: Game, maze: MazeAdapter) -> None:
+        super().__init__(win_size, title, game, maze)
         self.__assets_loaded = False
         self.__updated = False
         self.__flashing = False
@@ -40,6 +37,7 @@ class Gameplay(BaseRender):
         self.__pacman_sprite_index_y = 0
         self.__pacman_dead_sprite_index_x = 0
         self.__pacman_dead_sprite_index_y = PACMAN_DEATH_SPRITE_START_INDEX_Y
+        self.__pacman_last_state = GameState.PLAYING
         self.__sprites_y = {ghost.id: 0 for ghost in self._game.ghosts}
         self.__sprites_x = {ghost.id: 0 for ghost in self._game.ghosts}
         self.__last_ghost_state = {ghost.id: ghost.state
@@ -76,9 +74,9 @@ class Gameplay(BaseRender):
         )
 
     def __update(self, maze: MazeAdapter) -> None:
-        if self._maze != maze:
-            self._maze = maze
-            map_size_x, map_size_y = self._maze.get_size()
+        if self.maze != maze:
+            self.maze = maze
+            map_size_x, map_size_y = self.maze.get_size()
             self._map_size_x = map_size_x * CELL_SIZE
             self._map_size_y = map_size_y * CELL_SIZE
             self.__updated = False
@@ -143,10 +141,10 @@ class Gameplay(BaseRender):
         assert self._background
         self._render_surface(self._background, (0, 0))
         final_line = False
-        for y in range(self._maze.height):
-            for x in range(self._maze.width):
+        for y in range(self.maze.height):
+            for x in range(self.maze.width):
                 self._draw_cell(
-                    self._maze.get_cell(x, y),
+                    self.maze.get_cell(x, y),
                     (x * CELL_SIZE, y * CELL_SIZE)
                     )
                 if final_line:
@@ -168,8 +166,10 @@ class Gameplay(BaseRender):
                 PACMAN_SPRITE_LAST_INDEX_X,
                 stop
                 )
+            if self.__pacman_last_state != GameState.PLAYING:
+                self.__pacman_last_state = GameState.PLAYING
         else:
-            self._render_entitie_death(
+            self._render_pacman_death(
                 self.__pacman_sprites,
                 PACMAN_SPRITE_LAST_INDEX_X,
                 PACMAN_DEATH_SPRITE_LAST_INDEX_Y,
@@ -375,10 +375,10 @@ class Gameplay(BaseRender):
 
         self._map_surface.blit(
             sprite,
-            ((self._game.pacman.pos[0]
-              + progress_tuple[0]) * CELL_SIZE + WALL_OFFSET,
-             (self._game.pacman.pos[1]
-              + progress_tuple[1]) * CELL_SIZE + WALL_OFFSET),
+            ((self._game.pacman.pos[0] + progress_tuple[0])
+                * CELL_SIZE + WALL_OFFSET,
+             (self._game.pacman.pos[1] + progress_tuple[1])
+                * CELL_SIZE + WALL_OFFSET),
             (self.__pacman_sprite_index_x * SPRITE_SIZE,
              self.__pacman_sprite_index_y * SPRITE_SIZE,
              SPRITE_SIZE, SPRITE_SIZE)
@@ -395,11 +395,11 @@ class Gameplay(BaseRender):
         else:
             self.__pacman_sprite_index_x += 1
 
-    def _render_entitie_death(self, sprite: pygame.Surface,
-                              last_index_x: int,
-                              last_index_y: int,
-                              start_index_y: int,
-                              stop: bool) -> None:
+    def _render_pacman_death(self, sprite: pygame.Surface,
+                             last_index_x: int,
+                             last_index_y: int,
+                             start_index_y: int,
+                             stop: bool) -> None:
         progress_tuple: tuple[float, float]
         match self._game.pacman.direction:
             case Direction.NORTH:
@@ -463,10 +463,15 @@ class Gameplay(BaseRender):
                         and ghost.state == GhostState.EATEN):
                     stop = True
                     self.__wait = True
+            if (self._game.game_state == GameState.RESPAWNING
+                    and self.__pacman_last_state != GameState.RESPAWNING):
+                stop = True
+                self.__wait = True
+                self.__pacman_last_state = self._game.game_state
         if self.__wait:
             if self.__wait_timer == 0.0:
                 self.__wait_timer = perf_counter()
-            if perf_counter() - self.__wait_timer >= 0.45:
+            if perf_counter() - self.__wait_timer >= DEATH_FREEZE_DURATION:
                 self.__wait = False
                 self.__wait_timer = 0.0
                 self._game.toggle_pause()
@@ -476,5 +481,5 @@ class Gameplay(BaseRender):
                 stop = True
 
         self._render_pacman(game_state, stop)
-        if not game_state == GameState.RESPAWNING:
+        if not game_state == GameState.RESPAWNING or self.__wait:
             self._render_ghosts(frightened_timer, stop)
