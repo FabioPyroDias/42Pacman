@@ -1,3 +1,5 @@
+"""Game manager package exports."""
+
 from .game import Game
 
 

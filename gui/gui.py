@@ -1,3 +1,5 @@
+"""GUI coordinator for scene rendering and input flow."""
+
 import pygame
 import time
 from manager.game import Game

@@ -1,3 +1,5 @@
+"""Pause menu scene rendering."""
+
 import pygame
 from .base_render import BaseRender
 from manager.game import Game

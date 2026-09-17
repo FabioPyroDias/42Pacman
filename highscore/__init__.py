@@ -1,3 +1,5 @@
+"""Highscore package exports."""
+
 from .highscore import Highscore
 
 

@@ -1,3 +1,5 @@
+"""Tests for maze adapter behavior."""
+
 from maze.maze_adapter import MazeAdapter
 import sys
 

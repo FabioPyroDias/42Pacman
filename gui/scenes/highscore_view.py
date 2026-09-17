@@ -1,3 +1,5 @@
+"""Highscore scene rendering."""
+
 import pygame
 from manager.game import Game
 from maze import MazeAdapter
