@@ -1,8 +1,8 @@
 export UV_PROJECT_ENVIRONMENT:=$(shell \
 if [ ! -d pacman ] && [ ! -d .pacman_venv ]; then \
-	echo .venv; \
-elif [ -d .venv ] && [ -x .venv/bin/python3 ]; then \
-	echo .venv; \
+	echo pacman; \
+elif [ -d pacman ] && [ -x pacman/bin/python3 ]; then \
+	echo pacman; \
 else \
 	echo .venv_venv; \
 fi)
