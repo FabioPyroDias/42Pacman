@@ -17,6 +17,40 @@ from consts import (
 class GUI(Gameplay, HUD, MainMenu, Instructions,
           HighscoreView, PauseMenu, GameOver, Victory,
           NameEntry, Ready):
+    """Class representing the graphical user interface (GUI) for the game.
+
+    This class manages various scenes of the game, including the main menu,
+    gameplay, instructions, high scores, and game over screens. It updates the
+    game state and renders the appropriate scene based on the current
+    game conditions.
+
+    Attributes:
+        active_scene (SceneState): The current active scene of the GUI.
+        invalid_player_name (bool): Flag indicating if the player name entered
+        is invalid.
+        __ready (bool): Flag indicating if the game is ready to start.
+        __start_time (float): The start time for various timed events in the
+        game.
+
+    Args:
+        win_size (tuple[int, int]): The size of the game window as a tuple of
+        width and height.
+        title (str): The title of the game window.
+        game (Game): The game instance that this GUI is associated with.
+        maze (MazeAdapter): An adapter for the maze used in the game.
+
+    Methods:
+        update(frightened_timer: float, level: int, score: int, lives: int,
+               game_state: GameState, player_name: str,
+               highscore: list[dict[str, str | int]], timer: float,
+               maze: MazeAdapter) -> None:
+            Updates the game state and renders the appropriate scene based on
+            the current game conditions.
+
+        get_event() -> list[pygame.event.Event]:
+            Retrieves the current events from the pygame event queue.
+    """
+
     def __init__(self, win_size: tuple[int, int], title: str,
                  game: Game, maze: MazeAdapter) -> None:
         super().__init__(win_size, title, game, maze)
@@ -29,7 +63,26 @@ class GUI(Gameplay, HUD, MainMenu, Instructions,
                score: int, lives: int, game_state: GameState,
                player_name: str, highscore: list[dict[str, str | int]],
                timer: float, maze: MazeAdapter) -> None:
+        """Updates the game state and renders the appropriate scene
+        based on the current game conditions.
 
+        Args:
+            frightened_timer (float): The timer indicating how long the
+            player is frightened.
+            level (int): The current level of the game.
+            score (int): The current score of the player.
+            lives (int): The number of lives remaining for the player.
+            game_state (GameState): The current state of the game
+            (e.g., GAME_OVER, VICTORY).
+            player_name (str): The name of the player.
+            highscore (list[dict[str, str | int]]): A list of high score
+            entries, each represented as a dictionary.
+            timer (float): The current timer value for the game.
+            maze (MazeAdapter): An adapter for the maze used in the game.
+
+        Returns:
+            None: This function does not return a value.
+        """
         if (not self.__ready
                 and game_state not in (GameState.GAME_OVER,
                                        GameState.VICTORY)):
@@ -98,4 +151,11 @@ class GUI(Gameplay, HUD, MainMenu, Instructions,
         pygame.display.update()
 
     def get_event(self) -> list[pygame.event.Event]:
+        """
+        Retrieves a list of all the events from the Pygame event queue.
+
+        Returns:
+            list[pygame.event.Event]: A list containing all the events
+            currently in the Pygame event queue.
+        """
         return pygame.event.get()

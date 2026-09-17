@@ -26,8 +26,88 @@ Coordinates = tuple[int, int]
 
 
 class Gameplay(BaseRender):
+    """
+    Gameplay class for rendering the game state in a graphical interface.
+
+    This class extends the BaseRender class and is responsible for loading
+    assets,
+    updating the game state, and rendering the game elements such as Pacman,
+    ghosts,
+    and the maze.
+
+    Attributes:
+        __assets_loaded (bool): Indicates whether the game assets have been
+        loaded.
+        __updated (bool): Indicates whether the game state has been updated.
+        __flashing (bool): Indicates whether the ghosts are in a flashing
+        state.
+        __wait (bool): Indicates whether the game is in a wait state.
+        __wait_timer (float): Timer for managing wait durations.
+        __last_flash (float): Timestamp of the last flash event for ghosts.
+        __pacman_sprite_index_x (int): Current sprite index for Pacman's
+        animation in the x-direction.
+        __pacman_sprite_index_y (int): Current sprite index for Pacman's
+        animation in the y-direction.
+        __pacman_dead_sprite_index_x (int): Current sprite index for Pacman's
+        death animation in the x-direction.
+        __pacman_dead_sprite_index_y (int): Current sprite index for Pacman's
+        death animation in the y-direction.
+        __pacman_last_state (GameState): Last known state of Pacman.
+        __sprites_y (dict): Dictionary mapping ghost IDs to their
+        y-coordinates.
+        __sprites_x (dict): Dictionary mapping ghost IDs to their
+        x-coordinates.
+        __last_ghost_state (dict): Dictionary mapping ghost IDs to their last
+        known states.
+        _background (pygame.Surface | None): Background surface for rendering.
+        __last_pacman_frame_time (float): Timestamp of the last frame rendered
+        for Pacman.
+        __last_frame_time (dict): Dictionary mapping ghost IDs to their last
+        frame render timestamps.
+
+    Methods:
+        __load_assets(): Loads the necessary game assets for rendering.
+        __update(maze: MazeAdapter): Updates the game state and window size
+        based on the current maze.
+        _draw_cell(cell: Cell, coord: Coordinates): Draws a single cell of the
+        maze.
+        _render_map(): Renders the entire maze.
+        _render_pacman(game_state: GameState, stop: bool): Renders the Pacman
+        character based on the game state.
+        _render_ghosts(frightened_timer: float, stop: bool): Renders the
+        ghosts, handling their states and animations.
+        _render_pacgums(): Renders the Pacgums in the maze.
+        _render_scared_ghost(sprite: pygame.Surface, ghost: Ghost,
+        last_index_x: int, stop: bool): Renders a scared ghost.
+        _render_ghost(sprite: pygame.Surface, ghost: Ghost, last_index_x: int,
+        stop: bool): Renders a ghost.
+        _render_pacman_entity(sprite: pygame.Surface, last_index_x: int,
+        stop: bool): Renders the Pacman entity.
+        _render_pacman_death(sprite: pygame.Surface, last_index_x: int,
+        last_index_y: int, start_index_y: int, stop: bool): Renders Pacman's
+        death animation.
+        render_gameplay(frightened_timer: float, game_state: GameState,
+        maze: MazeAdapter, stop: bool = False): Main method to render the
+        gameplay, updating the state and rendering all elements.
+    """
     def __init__(self, win_size: tuple[int, int], title: str,
                  game: Game, maze: MazeAdapter) -> None:
+        """
+        Initialize the game renderer with the specified window size,
+        title, game instance, and maze adapter.
+
+        Args:
+            win_size (tuple[int, int]): The size of the game window as a
+            tuple of (width, height).
+            title (str): The title of the game window.
+            game (Game): An instance of the Game class representing the
+            current game state.
+            maze (MazeAdapter): An adapter for the maze structure used in
+            the game.
+
+        Returns:
+            None
+        """
         super().__init__(win_size, title, game, maze)
         self.__assets_loaded = False
         self.__updated = False
@@ -51,6 +131,26 @@ class Gameplay(BaseRender):
         self.__last_frame_time = {ghost.id: now for ghost in self._game.ghosts}
 
     def __load_assets(self) -> None:
+        """
+        Load and manage the rendering of game assets, including ghosts and
+        their states.
+
+        This method handles the flashing effect of ghosts when they are
+        frightened,
+        updates their rendering based on their current state (frightened,
+        eaten, or normal),
+        and manages the animation frames for each ghost. It also ensures
+        that the
+        rendering is performed at appropriate intervals to create a smooth
+        visual experience.
+
+        Args:
+            frightened_timer (float): The timer indicating how long the ghosts
+            are frightened.
+
+        Returns:
+            None
+        """
         if self.__assets_loaded:
             return
         self.__pacman_sprites = pygame.image.load(
@@ -76,6 +176,19 @@ class Gameplay(BaseRender):
         )
 
     def __update(self, maze: MazeAdapter) -> None:
+        """
+        Rebuild cached rendering surfaces when the maze or window size changes.
+
+        Checks if the maze instance or the window dimensions differ from the
+        cached values, and if so, resizes the window and recreates the
+        background, map and wall surfaces used for rendering.
+
+        Args:
+            maze (MazeAdapter): The current maze to render.
+
+        Returns:
+            None
+        """
         if self.maze != maze:
             self.maze = maze
             map_size_x, map_size_y = self.maze.get_size()
@@ -114,6 +227,21 @@ class Gameplay(BaseRender):
         self.__updated = True
 
     def _draw_cell(self, cell: Cell, coord: Coordinates) -> None:
+        """
+        Draw a single maze cell's walls onto the map surface.
+
+        Blits wall segments for each open side (north, east, south, west) of
+        the cell at the given coordinates, and draws the 42-logo background
+        when the cell is fully enclosed.
+
+        Args:
+            cell (Cell): The cell whose walls should be drawn.
+            coord (Coordinates): The pixel coordinates of the cell's
+            top-left corner.
+
+        Returns:
+            None
+        """
         x, y = coord
         for i in range(4):
             if cell.n:
@@ -140,6 +268,16 @@ class Gameplay(BaseRender):
                                     y + WALL_THICKNESS))
 
     def _render_map(self) -> None:
+        """
+        Render the full maze grid onto the map surface.
+
+        Draws the background, then iterates over every cell in the maze,
+        rendering its walls, and adds a final boundary line beneath the
+        last row.
+
+        Returns:
+            None
+        """
         assert self._background
         self._render_surface(self._background, (0, 0))
         final_line = False
@@ -158,6 +296,19 @@ class Gameplay(BaseRender):
                 final_line = True
 
     def _render_pacman(self, game_state: GameState, stop: bool) -> None:
+        """
+        Render Pac-Man's sprite based on the current game state.
+
+        Renders the normal movement animation while the game is playing or
+        paused, and switches to the death animation for any other state.
+
+        Args:
+            game_state (GameState): The current state of the game.
+            stop (bool): A flag indicating whether to stop the animation.
+
+        Returns:
+            None
+        """
         if game_state in (GameState.PLAYING,
                           GameState.PAUSED):
             self.__pacman_dead_sprite_index_x = 0
@@ -180,6 +331,22 @@ class Gameplay(BaseRender):
             )
 
     def _render_ghosts(self, frightened_timer: float, stop: bool) -> None:
+        """
+        Render the ghosts in the game.
+
+        This method updates the position of the ghost sprites based on their
+        current direction and movement progress. It handles the rendering of
+        the sprites on the game surface and manages the animation frames for
+        the ghost entities.
+
+        Args:
+            frightened_timer (float): The timer indicating how long the ghosts
+            are frightened.
+            stop (bool): A flag indicating whether to stop rendering.
+
+        Returns:
+            None
+        """
         now = perf_counter()
         if frightened_timer == 0.0:
             self.__flashing = False
@@ -223,6 +390,25 @@ class Gameplay(BaseRender):
                     self.__last_ghost_state[ghost.id] = ghost.state
 
     def _render_pacgums(self) -> None:
+        """
+        Render the ghost sprite on the game surface and manage the animation
+        frames for the ghost entity.
+
+        This method updates the position of the ghost sprite based on its
+        current direction and movement progress. It handles the rendering of
+        the sprite on the game surface and manages the animation frames for
+        the ghost entity.
+
+        Args:
+            sprite (pygame.Surface): The surface on which to render the game
+            elements.
+            ghost (Ghost): The ghost entity to be rendered.
+            last_index_x (int): The last x-coordinate index for rendering.
+            stop (bool): A flag indicating whether to stop rendering.
+
+        Returns:
+            None
+        """
         for pos in self._game.collectables:
             if isinstance(self._game.collectables[pos], Pacgum):
                 self._map_surface.blit(
@@ -239,6 +425,25 @@ class Gameplay(BaseRender):
                              ghost: Ghost,
                              last_index_x: int,
                              stop: bool) -> None:
+        """
+        Render a scared ghost entity on the game surface.
+
+        This method updates the position of the ghost sprite based on its
+        current
+        direction and movement progress. It handles the rendering of the
+        sprite on
+        the game surface and manages the animation frames for the ghost entity.
+
+        Args:
+            sprite (pygame.Surface): The surface on which to render the game
+            elements.
+            ghost (Ghost): The ghost entity to be rendered.
+            last_index_x (int): The last x-coordinate index for rendering.
+            stop (bool): A flag indicating whether to stop rendering.
+
+        Returns:
+            None
+        """
         progress_tuple: tuple[float, float]
         match ghost.direction:
             case Direction.NORTH:
@@ -291,6 +496,20 @@ class Gameplay(BaseRender):
     def _render_ghost(self, sprite: pygame.Surface,
                       ghost: Ghost, last_index_x: int,
                       stop: bool) -> None:
+        """
+        Render the ghost sprite on the game surface and manage the animation
+        frames for the Pac-Man entity.
+
+        Args:
+            sprite (pygame.Surface): The surface on which to render the game
+            elements.
+            ghost (Ghost): The ghost entity to be rendered.
+            last_index_x (int): The last x-coordinate index for rendering.
+            stop (bool): A flag indicating whether to stop rendering.
+
+        Returns:
+            None
+        """
         progress_tuple: tuple[float, float]
         match ghost.direction:
             case Direction.NORTH:
@@ -346,6 +565,27 @@ class Gameplay(BaseRender):
     def _render_pacman_entity(self, sprite: pygame.Surface,
                               last_index_x: int,
                               stop: bool) -> None:
+        """
+        Render the Pac-Man entity on the game surface.
+
+        This method updates the position of the Pac-Man sprite
+        based on its current
+        direction and movement progress. It handles the rendering
+        of the sprite on
+        the game surface and manages the animation frames for the
+        Pac-Man entity.
+
+        Args:
+            sprite (pygame.Surface): The surface on which to render the
+            game elements.
+            last_index_x (int): The last x-coordinate index for rendering.
+            last_index_y (int): The last y-coordinate index for rendering.
+            start_index_y (int): The starting y-coordinate index for rendering.
+            stop (bool): A flag indicating whether to stop rendering.
+
+        Returns:
+            None
+        """
         progress_tuple: tuple[float, float]
         match self._game.pacman.direction:
             case Direction.NORTH:
@@ -402,6 +642,22 @@ class Gameplay(BaseRender):
                              last_index_y: int,
                              start_index_y: int,
                              stop: bool) -> None:
+        """
+        Renders the current state of the game, including the maze,
+        Pac-Man, and ghosts.
+        Handles the logic for ghost states and pauses the game if necessary.
+
+        Args:
+            sprite (pygame.Surface): The surface on which to render the game
+            elements.
+            last_index_x (int): The last x-coordinate index for rendering.
+            last_index_y (int): The last y-coordinate index for rendering.
+            start_index_y (int): The starting y-coordinate index for rendering.
+            stop (bool): A flag indicating whether to stop rendering.
+
+        Returns:
+            None
+        """
         progress_tuple: tuple[float, float]
         match self._game.pacman.direction:
             case Direction.NORTH:
@@ -455,6 +711,30 @@ class Gameplay(BaseRender):
     def render_gameplay(self, frightened_timer: float,
                         game_state: GameState, maze: MazeAdapter,
                         stop: bool = False) -> None:
+        """
+        Render the gameplay elements including the map, Pac-Man, and ghosts.
+
+        This method updates the game state, loads necessary assets,
+        and renders the
+        current state of the game, including the maze, Pac-Man, and ghosts.
+        It also
+        handles the logic for ghost states and pauses the game if necessary.
+
+        Args:
+            frightened_timer (float): The timer indicating how long the ghosts
+            are
+                frightened.
+            game_state (GameState): The current state of the game, which can
+            affect
+                rendering behavior.
+            maze (MazeAdapter): The maze structure that defines the layout of
+            the game.
+            stop (bool, optional): A flag indicating whether to stop rendering.
+                Defaults to False.
+
+        Returns:
+            None
+        """
         self.__update(maze)
         self.__load_assets()
         self._render_map()

@@ -14,6 +14,30 @@ from consts import (
 
 
 def main() -> None:
+    """
+    Main entry point for the PAC-MAN game.
+
+    This function initializes the game configuration, sets up the game loop,
+    and handles user input for controlling the game. It manages the game state,
+    updates the GUI, and processes events such as key presses and quitting the
+    game.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    Raises:
+        None
+
+    Notes:
+        - The game can be paused and resumed.
+        - The function handles different scenes including the menu, gameplay,
+        high scores, and instructions.
+        - Player input is processed for movement and menu navigation.
+        - The game state is updated based on player actions and game events.
+    """
     config_path = ""
     if len(sys.argv) >= 2:
         config_path = sys.argv[1]
