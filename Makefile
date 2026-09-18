@@ -4,7 +4,7 @@ if [ ! -d pacman ] && [ ! -d .pacman_venv ]; then \
 elif [ -d pacman ] && [ -x pacman/bin/python3 ]; then \
 	echo pacman; \
 else \
-	echo .venv_venv; \
+	echo .pacman_venv; \
 fi)
 
 PYTHON = $(UV_PROJECT_ENVIRONMENT)/bin/python3
@@ -36,7 +36,7 @@ install:
 run: install
 	$(UV) run pac-man.py $(CONFIG)
 
-debug:
+debug: install
 	$(PYTHON) -m pdb pac-man.py $(CONFIG)
 
 clean:
@@ -45,12 +45,12 @@ clean:
 	$(RM) __pycache__
 	$(RM) */__pycache__
 
-lint:
+lint: install
 	clear
 	$(PYTHON) -m flake8
 	$(PYTHON) -m mypy $(MYPY_FLAGS) .
 
-lint-strict:
+lint-strict: install
 	clear
 	$(PYTHON) -m flake8
 	$(PYTHON) -m mypy --strict .

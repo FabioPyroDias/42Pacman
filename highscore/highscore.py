@@ -179,6 +179,6 @@ class Highscore():
 
         try:
             with open(self.path, "w") as save:
-                json.dump(self.scores, save)
+                json.dump(self.scores, save, indent=4)
         except OSError:
             print("ERROR (highscore): Couldn't save highscores")

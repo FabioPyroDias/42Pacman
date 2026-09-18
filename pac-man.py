@@ -115,6 +115,14 @@ def main() -> None:
                         case pygame.K_SPACE:
                             game.toggle_pause()
                             gui.active_scene = SceneState.PAUSE
+                        case pygame.K_l:
+                            game.cheat_add_lives()
+                        case pygame.K_n:
+                            game.cheat_skip_level()
+                        case pygame.K_i:
+                            game.cheat_toggle_invincible()
+                        case pygame.K_f:
+                            game.cheat_toggle_ghost_freeze()
 
                 elif gui.active_scene == SceneState.PAUSE:
                     match event.key:
@@ -156,6 +164,7 @@ def main() -> None:
             in_countdown = True
         frame_time = time.perf_counter() - last_frame_time
 
+    highscore.save_highscore()
     pygame.quit()
 
 

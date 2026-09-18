@@ -6,14 +6,17 @@ from maze.maze_adapter import MazeAdapter
 from .base_render import BaseRender
 from consts import (
     COMMOM_TEXT_COLOR, BACKGROUND_COLOR, INSTRUCTIONS_LIST,
-    EXPECTECTED_INSTRUCTIONS_LEN
+    EXPECTECTED_CONTROLS_LEN, CONTROLS_LIST
     )
 
 
-INSTRUCTIONS = [first + "."*abs(
-    len(first + second) + 2 - EXPECTECTED_INSTRUCTIONS_LEN
+CONTROLS = [first + "."*abs(
+    len(first + second) + 2 - EXPECTECTED_CONTROLS_LEN
     ) + second
-    for first, second in INSTRUCTIONS_LIST]
+    for first, second in CONTROLS_LIST]
+
+INSTRUCTIONS = [first + second
+                for first, second in INSTRUCTIONS_LIST]
 
 
 class Instructions(BaseRender):
@@ -21,9 +24,9 @@ class Instructions(BaseRender):
     Instructions class for rendering game instructions on the screen.
 
     This class inherits from BaseRender and is responsible for displaying
-    the instructions for the game, including a subtitle and a list of
-    commands. It handles loading fonts and text, updating the background,
-    and rendering the instructions on the game window.
+    the instructions for the game, including a subtitle, a list of game
+    rules (with point/life values substituted from the config), and a
+    list of controls.
 
     Attributes:
         __updated (bool): Indicates whether the background has been updated.
@@ -31,15 +34,18 @@ class Instructions(BaseRender):
         __text_loaded (bool): Indicates whether the text has been loaded.
         _background (pygame.Surface | None): The background surface for the
         instructions.
+        _instructions_list (list[pygame.Surface]): Rendered rule lines, with
+        placeholders replaced by config values.
+        _controls_list (list[pygame.Surface]): Rendered control/key lines.
 
     Methods:
         __update(): Updates the background surface if necessary.
         __load_fonts(): Loads the fonts used for rendering text.
-        __load_text(): Loads the text to be displayed, including instructions
-        and buttons.
-        _render_instructions_subtitle(): Renders the instructions subtitle and
-        back button.
-        _render_commands(): Renders the list of commands on the screen.
+        __load_text(): Loads the text to be displayed, including
+        instructions, controls, and buttons.
+        _subtitle(): Renders the instructions subtitle and back button.
+        _render_instructions(): Renders the rule list and the control list
+        side by side on the screen.
         render_instructions(): Main method to render the instructions on the
         game window.
 
@@ -138,7 +144,7 @@ class Instructions(BaseRender):
             )
         self._instructions_font = pygame.font.SysFont(
                     None,
-                    int(self._win_size_y * 0.05)
+                    int(self._win_size_y * 0.03)
                     )
 
         self._back_button_font = pygame.font.SysFont(
@@ -151,26 +157,56 @@ class Instructions(BaseRender):
 
     def __load_text(self) -> None:
         """
-        Loads the text elements required for the application.
+        Loads the text elements required for the instructions screen.
 
-        This method initializes the fonts and renders the necessary text
-        components,
-        including the instructions and back button text. It checks if the text
-        has
-        already been loaded to avoid redundant operations.
+        Initializes the fonts, substitutes point/life placeholders
+        (`+X`, `+Y`, `+Z`, `+L`) in the rule list with the current game
+        config values, and renders the subtitle, back button, rule list
+        (`_instructions_list`), and control list (`_controls_list`). Checks
+        if the text has already been loaded to avoid redundant operations.
 
         Attributes:
             _subtitle_instructions: Rendered text for the subtitle
             instructions.
             _back_button_txt: Rendered text for the back button.
-            _instructions_list: List of rendered instruction texts.
+            _instructions_list: List of rendered rule texts.
+            _controls_list: List of rendered control/key texts.
 
         Returns:
             None
         """
+        instructions = [
+            first + second
+            for first, second in INSTRUCTIONS_LIST]
         self.__load_fonts()
         if self.__text_loaded:
             return
+
+        instructions = []
+        for first, second in INSTRUCTIONS_LIST:
+            match first:
+                case "Pacgum ":
+                    second = second.replace(
+                        "+X",
+                        str(self._game.config["points_per_pacgum"])
+                        )
+                case "Super-pacgum ":
+                    "points_per_super_pacgum"
+                    second = second.replace(
+                        "+Y",
+                        str(self._game.config["points_per_super_pacgum"])
+                        )
+                case "Edible Ghost ":
+                    second = second.replace(
+                        "+Z",
+                        str(self._game.config["points_per_ghost"])
+                    )
+                case "Lives ":
+                    second = second.replace(
+                        "+L",
+                        str(self._game.config["lives"])
+                    )
+            instructions.append(first + second)
 
         self._subtitle_instructions = self._subtitle_font.render(
                 "INSTRUCTIONS",
@@ -189,12 +225,20 @@ class Instructions(BaseRender):
                 instructions_text,
                 0,
                 COMMOM_TEXT_COLOR
-                ) for instructions_text in INSTRUCTIONS
+                ) for instructions_text in instructions
+        ]
+
+        self._controls_list = [
+            self._instructions_font.render(
+                controls_text,
+                0,
+                COMMOM_TEXT_COLOR
+                ) for controls_text in CONTROLS
         ]
 
         self.__text_loaded = True
 
-    def _render_instructions_subtitle(self) -> None:
+    def _subtitle(self) -> None:
         """
         Render the instructions subtitle and back button text on the window.
 
@@ -226,15 +270,14 @@ class Instructions(BaseRender):
                             self._win_size_y // 20)
                             ))
 
-    def _render_commands(self) -> None:
+    def _render_instructions(self) -> None:
         """
-        Render the command instructions on the window.
+        Render the rule list and the control list on the window.
 
-        This method iterates through the list of instructions and blits
-        each instruction
-        text onto the window at calculated positions based on the window
-        size and
-        instruction height.
+        Iterates through `_instructions_list` and blits each rule text on
+        the left half of the window, and iterates through `_controls_list`,
+        blitting each control text on the right half, both positioned
+        relative to window size and line height.
 
         Args:
             None
@@ -246,9 +289,19 @@ class Instructions(BaseRender):
             self._win.blit(
                 instruction_txt,
                 instruction_txt.get_rect(
-                    center=(self._win_size_x // 2,
-                            self._win_size_y // 3 +
+                    center=(self._win_size_x // 4,
+                            self._win_size_y // 4 +
                             (self._intructions_heigth + 10) * i
+                            )
+                    )
+            )
+        for i, control_txt in enumerate(self._controls_list, 1):
+            self._win.blit(
+                control_txt,
+                control_txt.get_rect(
+                    center=(self._win_size_x * 3 // 4,
+                            self._win_size_y // 4 +
+                            (self._intructions_heigth + 6) * i
                             )
                     )
             )
@@ -273,5 +326,5 @@ class Instructions(BaseRender):
             self._background,
             (0, 0)
         )
-        self._render_instructions_subtitle()
-        self._render_commands()
+        self._subtitle()
+        self._render_instructions()

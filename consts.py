@@ -110,13 +110,32 @@ DEAD_GHOST_SPRITE_PATH = "assets/dead_ghost.xpm"
 SCARED_GHOST_SPRITE_PATH = "assets/scared_ghost.xpm"
 
 # INSTRUCTIONS
-EXPECTECTED_INSTRUCTIONS_LEN = 50
+EXPECTECTED_CONTROLS_LEN = 50
+CONTROLS_LIST = [
+    ("W / Arrow Up ", " Move Up"),
+    ("A / Arrow Left ", " Move Left"),
+    ("S / Arrow Down ", " Move Down"),
+    ("D / Arrow Right ", " Move Right"),
+    ("SPACE ", " Play / Pause"),
+    ("V ", " Toggle Invincible"),
+    ("F ", " Freeze ghosts and timer"),
+    ("L ", " Add Lives"),
+    ("N ", " Skip Level"),
+    ("H ", " View Highscores"),
+    ("ESC (Main Menu) ", " Exit Game"),
+    ("ESC (Paused) ", " Return to Main Menu"),
+]
 INSTRUCTIONS_LIST = [
-    ("W / Arraw Up ", " Move Up"),
-    ("W / Arraw Left ", " Move Left"),
-    ("W / Arraw Down ", " Move Down"),
-    ("W / Arraw Right ", " Move Right"),
-    ("SPACE ", " Pause")
+    ("Objective ", "Eat all pacgums to win the level"),
+    ("Game Win ", "Complete all levels to win the game"),
+    ("Pacgum ", "+X points when eaten"),
+    ("Super-pacgum ", "+Y points, makes ghosts edible for a short time"),
+    ("Edible Ghost ", "+Z points when eaten"),
+    ("Lives ", "Start with +L, lose one when touched by a non-edible ghost"),
+    ("Respawn ", "Return to the middle of the maze after losing a life"),
+    ("Game Over ", "When all lives are lost"),
+    ("Level Timer ", "Each level has a time limit"),
+    ("Pause ", "Player can pause and resume during the game")
 ]
 
 PACMAN_DEATH_ANIMATION_DURATION = 1.28
