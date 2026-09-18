@@ -1,6 +1,7 @@
 """Base entity and movable entity classes for grid-based game objects."""
 
 from enums import Direction
+from consts import ENTITY_SPEED
 from maze.maze_adapter import MazeAdapter
 
 
@@ -157,7 +158,7 @@ class MovableEntity(Entity):
             # When it reaches the Cell, move_progress resets to 0
             #   and its no longer considered to be reversed.
             else:
-                self.move_progress -= delta
+                self.move_progress -= delta * ENTITY_SPEED
                 if self.move_progress <= 0.0:
                     self.move_progress = 0.0
                     self.reversing = False
@@ -180,7 +181,7 @@ class MovableEntity(Entity):
                 if self.next_direction:
                     self.direction = self.next_direction
                     self.next_direction = None
-                self.move_progress += delta
+                self.move_progress += delta * ENTITY_SPEED
 
         # If Entity is between two Cells, and it wants to reverse the
         #   Direction, again being player input or new calculated Direction,
@@ -196,7 +197,7 @@ class MovableEntity(Entity):
                 self.next_direction = None
                 self.reversing = True
             else:
-                self.move_progress += delta
+                self.move_progress += delta * ENTITY_SPEED
 
         # When the Entity is centered, or close to it by reaching it
         #   and surpassing it, the new target position is calculated

@@ -1,6 +1,15 @@
-export UV_PROJECT_ENVIRONMENT = pacman
+export UV_PROJECT_ENVIRONMENT:=$(shell \
+if [ ! -d pacman ] && [ ! -d .pacman_venv ]; then \
+	echo pacman; \
+elif [ -d pacman ] && [ -x pacman/bin/python3 ]; then \
+	echo pacman; \
+else \
+	echo .pacman_venv; \
+fi)
 
-PYTHON = pacman/bin/python3
+PYTHON = $(UV_PROJECT_ENVIRONMENT)/bin/python3
+PIP = $(UV_PROJECT_ENVIRONMENT)/bin/pip
+UV = $(UV_PROJECT_ENVIRONMENT)/bin/uv
 
 MYPY_FLAGS = --warn-return-any --warn-unused-ignores \
 		--ignore-missing-imports --disallow-untyped-defs \
@@ -8,29 +17,41 @@ MYPY_FLAGS = --warn-return-any --warn-unused-ignores \
 		--namespace-packages
 
 RM = rm -rf
+CONFIG = config.json
 
 install:
-	uv sync
+	@if [ ! -d $(UV_PROJECT_ENVIRONMENT) ]; then \
+		python3 -m venv $(UV_PROJECT_ENVIRONMENT); \
+	elif [ -d $(UV_PROJECT_ENVIRONMENT) ] && [ ! -x $(PYTHON) ]; then \
+		python3 -m venv $(UV_PROJECT_ENVIRONMENT); \
+	fi
+	@if [ ! -x $(UV) ]; then \
+		if [ ! -x $(PIP) ]; then \
+			$(PYTHON) -m ensurepip; \
+		fi; \
+		$(PIP) install uv; \
+	fi
+	$(UV) sync
 
-run:
-	@echo ""
+run: install
+	$(UV) run pac-man.py $(CONFIG)
 
-debug:
-	@echo ""
+debug: install
+	$(PYTHON) -m pdb pac-man.py $(CONFIG)
 
 clean:
 	$(RM) config_tests/
 	$(RM) .mypy_cache
 	$(RM) __pycache__
-	$(RM) entities/__pycache__
-	$(RM) maze/__pycache__
-	$(RM) parser/__pycache__
+	$(RM) */__pycache__
 
-lint:
+lint: install
+	clear
 	$(PYTHON) -m flake8
 	$(PYTHON) -m mypy $(MYPY_FLAGS) .
 
-lint-strict:
+lint-strict: install
+	clear
 	$(PYTHON) -m flake8
 	$(PYTHON) -m mypy --strict .
 

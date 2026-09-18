@@ -30,3 +30,17 @@ class GameState(Enum):
     LEVEL_COMPLETE = 4
     GAME_OVER = 5
     VICTORY = 6
+
+
+class SceneState(Enum):
+    """Represents the states a scene can be in."""
+
+    MENU = 0
+    INSTRUCTIONS = 1
+    HIGHSCORES_VIEW = 2
+    GAMEPLAY = 3
+    PAUSE = 4
+    GAME_OVER = 5
+    VICTORY = 6
+    NAME_ENTRY = 7
+    READY = 8

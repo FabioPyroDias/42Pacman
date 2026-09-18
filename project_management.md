@@ -13,13 +13,11 @@ Developed by a two person team over roughly three weeks.
 | Member | Role |
 |--------|------|
 | Fábio Dias (`fda-cruz`) | Game Engine - Pacman, Ghosts, Level logic, Parser, Config, Highscore |
-| João Souza (`jsouza`) | TODO |
-
+| João Souza (`jsouza`) | UI Engine - Rendering, Menus, Animation, Input Handling (`pac-man.py`) |
 
 ## How We Worked
 
-#### TODO -> JOÃO
-The project follows a strict separation between game logic and rendering. The engine side where `Game`, `Pacman`, `Ghost`, `Collectable`, `MazeAdapter`, `Highscore`, `parser` exist, has no dependency on any graphics or input library. !ATENÇÃO#Acho que aqui não é main.py#ATENÇÃO! `main.py` (owned by the UI side) is meant to instantiate `Game`, run the loop (read events → translate to abstract inputs → `game.update(...)` → render), and own everything Pygame/MLX-specific. This lets the engine be built and unit-tested headlessly, independently of the renderer's progress.
+The project follows a strict separation between game logic and rendering. The engine side where `Game`, `Pacman`, `Ghost`, `Collectable`, `MazeAdapter`, `Highscore`, `parser` exist, has no dependency on any graphics or input library. `pac-man.py` (owned by the UI side) is meant to instantiate `Game`, run the loop (read events → translate to abstract inputs → `game.update(...)` → render), and own everything Pygame/MLX-specific. This lets the engine be built and unit-tested headlessly, independently of the renderer's progress.
 
 We worked almost daily in a remote environment with occassional meetings, sharing updates, design decisions and concept sharing. This allowed for a free, non pressure development process but still rigorous.
 
@@ -37,8 +35,10 @@ By the end of the project, several questions were made on how to improve the gam
 - `manager/game.py` - game orchestration (state, score, lives, `update()`)
 - Cheat mode flags
 
-#### TODO -> JOÃO
 ### Joao Souza - UI & Infrastructure
+
+`ui/gui.py` is the sole owner of the window/surface and runs the render loop; game logic never touches `pygame.display` directly. Rendering follows the State Pattern — each screen under `ui/states/*.py` (`main_menu`, `gameplay`, `pause_menu`, `game_over`, `victory`, `highscore_view`, `instructions`) exposes only a `render(surface, game_state)` method, with no input handling or logic of its own. Entity rendering uses one XPM spritesheet per entity (directions as rows, animation frames as columns), animated at 12fps decoupled from the main loop via `time.perf_counter()`. Also responsible for validating every new UI-side pygame feature against the MLX-equivalence constraint before use.
+
 - Visual maze rendering, entity rendering, player animation
 - Menus: main menu, instructions, pause menu, game over, highscore view
 - GUI refactors (2026-09-11 / 2026-09-12)
@@ -60,13 +60,20 @@ By the end of the project, several questions were made on how to improve the gam
 | 2026-08-31 | João | Entity rendering |
 | 2026-09-01 -- 09-03 | Fabio | Ghost base class, ghost subclasses, maze tests |
 | 2026-09-07 -- 09-08 | João | Base render, pause menu, game-over screen, highscore view, artifact cleanup |
-| 2026-09-09 -- 09-10 | Fabio | `Game` finished, cheat options, highscore module |
+| 2026-09-09 | Fabio | `Game` finished (not yet tested) |
+| 2026-09-10 | Fabio | Cheat options, highscore module |
 | 2026-09-11 -- 09-12 | João | GUI refactors |
-| 2026-09-12 | Fabio | README started |
-| 2026-09-12 | Fabio | Movement bug fixed |
+| 2026-09-12 | Fabio | README started; movement bug fixed |
+| 2026-09-13 | Fabio | Collision bug fix, follow-up quick fix |
+| 2026-09-13 | João | mypy fixes; Pacman moonwalk (direction-reversal) bug addressed |
+| 2026-09-14 | Fabio | `project_management/` doc added; full pass of comments/docstrings on `main` |
+| 2026-09-14 | João | Name-entry screen implemented |
+| 2026-09-15 | João | Bug fixes; added READY (countdown) scene |
+| 2026-09-16 | João | Bug fixes |
+| 2026-09-17 | João | Merged `fabio` branch into `front-end`; module docstrings added across game/scene/package/entrypoint modules (including a Copilot-assisted PR) |
+| 2026-09-18 | João | Additional docstrings added |
 
-#### TODO -> JOÃO
-**Still not on `main` because it hasn't happened:** merging `front-end`. Everything Joao built from 09-07 onward exists only on `front-end` — see Blocking Points. (The `fabio` branch, including the movement fix above, is fully merged into `main` as of 2026-09-12.)
+**Still not on `main`:** the `front-end` branch (all UI work from 09-07 onward, including everything above) has not yet been merged — see Blocking Points.
 
 ## Key Decisions
 

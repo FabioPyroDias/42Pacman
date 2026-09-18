@@ -74,6 +74,10 @@ class Highscore():
             else:
                 print("Invalid format in highscores file. Using empty list")
 
+            self.scores = sorted(self.scores,
+                                 key=lambda entry: entry["score"],
+                                 reverse=True)
+            self.scores = self.scores[0: 10]
             return
 
         except IsADirectoryError:
@@ -138,6 +142,9 @@ class Highscore():
             if not (character.isalnum() or character == " "):
                 return False
 
+        if all(c == " " for c in player_name):
+            return False
+
         return True
 
     def add_score(self, player_name: str, score: int) -> None:
@@ -172,6 +179,6 @@ class Highscore():
 
         try:
             with open(self.path, "w") as save:
-                json.dump(self.scores, save)
+                json.dump(self.scores, save, indent=4)
         except OSError:
             print("ERROR (highscore): Couldn't save highscores")

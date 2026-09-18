@@ -144,36 +144,26 @@ class Game():
         self.game_state = GameState.PLAYING
 
     def check_collisions(self,
-                         pacman_previous_position: tuple[int, int],
+                         pacman_previous_position: tuple[float, float],
                          ghosts_previous_position: dict[Ghost,
-                                                        tuple[int, int]]
+                                                        tuple[float, float]]
                          ) -> bool:
         """
         Checks collisions between Pacman and ghosts or collectables.
 
         Args:
-            pacman_previous_position (tuple[int, int]): Pacman position
+            pacman_previous_position (tuple[float, float]): Pacman position
                 before update.
-            ghosts_previous_position (dict[Ghost, tuple[int, int]]): Ghost
+            ghosts_previous_position (dict[Ghost, tuple[float, float]]): Ghost
                 positions before update.
 
         Returns:
             bool: True if Pacman collided with a ghost. False otherwise.
         """
-
         # Check collisions between Pacman and Ghosts
         for ghost in self.ghosts:
             if ghost.state == GhostState.EATEN:
                 continue
-
-            # Direct collision: Both Pacman and Ghost are in the same Cell
-            direct_collision = ghost.pos == self.pacman.pos
-
-            # Swap Collision: Pacman and Ghost crossed paths
-            swap_collision = (
-                self.pacman.pos == ghosts_previous_position[ghost]
-                and pacman_previous_position == ghost.pos
-            )
 
             # To avoid visual bugs, this collision checks where both
             #   Pacman and the Ghost is in the maze.
@@ -184,12 +174,27 @@ class Game():
             #   it's considered they collided
             pacman_visual = self.visual_position(self.pacman)
             ghost_visual = self.visual_position(ghost)
+
+            # Swap Collision: Pacman and Ghost crossed paths
+            swap_collision = (
+                (
+                    (pacman_visual[0] - ghosts_previous_position[ghost][0]
+                     ) ** 2 + (
+                         pacman_visual[1] - ghosts_previous_position[ghost][1]
+                         ) ** 2) ** 0.5 <= COLLISION_DISTANCE_THRESHOLD
+                and (
+                    (pacman_previous_position[0] - ghost_visual[0]
+                     ) ** 2 + (
+                         pacman_previous_position[1] - ghost_visual[1]
+                         ) ** 2) ** 0.5 <= COLLISION_DISTANCE_THRESHOLD
+            )
+
             distance_collision = (
                 (pacman_visual[0] - ghost_visual[0]) ** 2
                 + (pacman_visual[1] - ghost_visual[1]) ** 2
             ) ** 0.5 <= COLLISION_DISTANCE_THRESHOLD
 
-            if direct_collision or swap_collision or distance_collision:
+            if distance_collision or swap_collision:
                 if ghost.state == GhostState.FRIGHTENED:
                     ghost.state = GhostState.EATEN
                     self.score += self.config["points_per_ghost"]
@@ -243,65 +248,57 @@ class Game():
             None
         """
 
-        if self.lives == 0:
+        if self.lives <= 0:
             self.game_state = GameState.GAME_OVER
         else:
-            self.reset_pacman()
-            self.reset_ghosts()
-            self.reset_timers()
             self.game_state = GameState.RESPAWNING
 
     def update(self, delta: float) -> None:
-        """Updates main game loops, entities, timers, and game progression.
 
-        Args:
-            delta: Time step delta value.
-
-        Returns:
-            None
-        """
+        if self.game_state == GameState.PAUSED:
+            return
 
         if self.game_state == GameState.RESPAWNING:
             self.respawn_timer += delta
             if self.respawn_timer >= TIMER_RESPAWN:
                 self.respawn_timer = 0.0
+                self.reset_pacman()
+                self.reset_ghosts()
+                self.reset_timers()
                 self.game_state = GameState.PLAYING
             return
 
-        if self.game_state == GameState.PAUSED:
-            return
-
         if self.game_state == GameState.LEVEL_COMPLETE:
-            self.current_level_index += 1
-            self.generate_maze()
-            self.setup_level()
+            try:
+                self.current_level_index += 1
+                self.generate_maze()
+                self.setup_level()
+            except IndexError:
+                self.game_state = GameState.VICTORY
             return
 
         if self.game_state == GameState.VICTORY:
             return
 
-        if not self.cheat_ghost_freeze:
-            self.update_timers(delta)
-
         if self.game_state == GameState.RESTART_LEVEL:
             self.lives -= 1
-            if self.lives == 0:
+            if self.lives <= 0:
                 self.game_state = GameState.GAME_OVER
             else:
                 self.setup_level()
             return
 
-        # Stores the previous Pacman position. This is needed for the
-        #   Swap Collision type.
-        # Only after do we update its position
-        previous_pos_pacman = self.pacman.pos
+        if not self.cheat_ghost_freeze:
+            self.update_timers(delta)
+
+        previous_pos_pacman = self.visual_position(self.pacman)
         self.pacman.update(delta, self.maze)
 
         # Stores all the ghosts previous positions.
         # Again, needed for the Swap Collision type.
         previous_pos_ghosts = {}
         for ghost in self.ghosts:
-            previous_pos_ghosts[ghost] = ghost.pos
+            previous_pos_ghosts[ghost] = self.visual_position(ghost)
             if not self.cheat_ghost_freeze:
                 ghost.update_ghost(delta, self.pacman.pos,
                                    self.pacman.direction,
@@ -422,13 +419,13 @@ class Game():
 
         self.ghosts = [
             Blinky(blinky_pos, Direction.NORTH, self.maze, GhostState.SCATTER,
-                   blinky_scatter_top_left, blinky_scatter_bottom_right),
+                   blinky_scatter_top_left, blinky_scatter_bottom_right, 0),
             Pinky(pinky_pos, Direction.NORTH, self.maze, GhostState.SCATTER,
-                  pinky_scatter_top_left, pinky_scatter_bottom_right),
+                  pinky_scatter_top_left, pinky_scatter_bottom_right, 1),
             Inky(inky_pos, Direction.NORTH, self.maze, GhostState.SCATTER,
-                 inky_scatter_top_left, inky_scatter_bottom_right),
+                 inky_scatter_top_left, inky_scatter_bottom_right, 2),
             Clyde(clyde_pos, Direction.NORTH, self.maze, GhostState.SCATTER,
-                  clyde_scatter_top_left, clyde_scatter_bottom_right),
+                  clyde_scatter_top_left, clyde_scatter_bottom_right, 3),
         ]
 
     def reset_timers(self) -> None:
@@ -549,7 +546,7 @@ class Game():
 
         if self.game_state == GameState.PAUSED:
             self.game_state = GameState.PLAYING
-        elif self.game_state == GameState.PLAYING:
+        elif self.game_state in (GameState.PLAYING, GameState.GAME_OVER):
             self.game_state = GameState.PAUSED
 
     def cheat_toggle_invincible(self) -> None:
@@ -618,8 +615,26 @@ class Game():
         """
 
         delta_x, delta_y = DIRECTION_VECTORS[entity.direction]
+        if entity.reversing:
+            delta_x, delta_y = -delta_x, -delta_y
 
         return (
             entity.pos[0] + delta_x * entity.move_progress,
             entity.pos[1] + delta_y * entity.move_progress,
         )
+
+    def reset_game(self) -> None:
+        """
+        Reset the game to its initial state.
+
+        Restarts from the first level with a fresh score, regenerates
+        the maze, and resets timers, ghosts, and pacman to their
+        starting state.
+        """
+        self.current_level_index = 0
+        self.score = 0
+        self.generate_maze()
+        self.setup_level()
+        self.reset_timers()
+        self.reset_ghosts()
+        self.reset_pacman()
