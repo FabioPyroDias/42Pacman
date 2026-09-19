@@ -73,13 +73,11 @@ By the end of the project, several questions were made on how to improve the gam
 | 2026-09-17 | João | Merged `fabio` branch into `front-end`; module docstrings added across game/scene/package/entrypoint modules (including a Copilot-assisted PR) |
 | 2026-09-18 | João | Additional docstrings added |
 
-**Still not on `main`:** the `front-end` branch (all UI work from 09-07 onward, including everything above) has not yet been merged — see Blocking Points.
-
 ## Key Decisions
 
 | Decision | Reason |
 |----------|--------|
-| `Game` has zero dependency on #!Atenção!# ####JOAO -> Motor gráfico?; `main.py` owns the loop and translates raw events into abstract inputs | Allows `Game.update()` to be built and unit-tested headlessly, in parallel with the UI side's progress |
+| `Game` has zero dependency on `gui`; `pac-man.py` owns the loop and translates raw events into abstract inputs | Allows `Game.update()` to be built and unit-tested headlessly, in parallel with the UI side's progress |
 | Ghost `EATEN` state resolved by a simple timer in `Game`, not by having the ghost walk back to a `home_position` | Simpler, decouples "being eaten" from pathfinding, the original walk-back approach was explored and explicitly discarded |
 | `Ghost.update()` has a signature incompatible with `MovableEntity.update(delta, maze)`, where it needs `pacman_pos`, `pacman_direction`, `blinky_pos` | Conscious decision, accepted because `Game` never treats `Pacman` and `Ghost` polymorphically |
 | `Ghost` keeps `self.maze` as a permanent attribute, unlike `Pacman` | `Ghost` is an autonomous state machine that must know the terrain to navigate every frame. `Pacman` never decides anything on its own, so it doesn't need it. Deliberate exception to the "pass everything as a parameter, never store" rule used for `pacman_pos`, `pacman_direction`, `blinky_pos` |
@@ -94,19 +92,12 @@ By the end of the project, several questions were made on how to improve the gam
 | Risk | Likelihood | Impact | Mitigation |
 |------|------------|--------|------------|
 | The external A-Maze-ing package has an interface or output that doesn't match our assumptions | Medium | High | `MazeAdapter` isolates the rest of the codebase from the external package's API. Defensive checks such as `is_walkable` checks walls on both sides of a boundary are implemented rather than trusting mutual consistency |
-##### JOÃO! TODO
 | Graphics library choice not yet made / no contract agreed with the UI teammate | High (currently true) | High | Tracked as an open blocking point (see below); engine built to be UI-agnostic specifically to reduce the cost of this being late |
 | Deliberate `update()` incompatible signature mismatch between `Pacman` and `Ghost` causes confusion or misuse from the UI side | Low | Medium | Explicitly discussed between teammates |
-#### JÕAO -> TODO!
 | Cheat mode toggle keys implemented with `get_pressed()` instead of a one-shot `KEYDOWN` event, causing rapid ON/OFF flicker | Medium (identified, not yet fixed) | Medium | Documented as a known pitfall to avoid in `main.py`; must be handled once input code exists |
-
-### TODO -> GERAL
-| No packaging/build script exists yet, subject requires a deployable public-platform build | High (currently true) | High | Tracked as an open blocking point |
 
 ## Acceptance Test Plan
 
-
-### JOÃO -> TALVEZ SEJA MELHOR OLHARES TU PARA ESTA TABELA.
 | Feature | How to test | Expected result | Status |
 |---|---|---|---|
 | Config parsing with comments | Launch with a config containing `#`/`//` lines and an invalid field | Comments ignored, invalid field replaced by default, no traceback | Testable now (headless) |
@@ -131,17 +122,14 @@ By the end of the project, several questions were made on how to improve the gam
 | `Pacman` can teleport through walls when a new direction is pressed before the current move animation finishes | Finalize the move with `self.get_next_position_on(self.pos, self.direction)` instead. This always closes the move in the direction that was actually validated and animated. `next_direction` is still applied, but only on the next cycle, when `move_progress <= 0.0`, where it goes through `is_walkable` normally |
 | Collision between `Pacman` and `Ghost` when both entities are far away | The `Ghost` visual position did not match the logical position. Solved by applying the true position to the rendered `Ghost` |
 | Crash when having different keys in `config.json` | Fixed with a simple `get()` |
+| `Pacman` would stop if its `next_direction` collided with a wall | Find the position `Pacman` would go if it stayed in the path according to the `self.direction`. If the `next_direction` isn't walkable, remain in the path |
+| `Ghosts` would leave the `EATEN` state in the incorrect position | Create a new attribute `starter_position` that replaces `self.pos` when `Ghost` leaves the `EATEN` state |
 
 ## Testing Strategy
-
-### 1. Manual verification scripts
 
 | Script | Purpose |
 |--------|---------|
 | `tests/test_parser.py` and `test_parser.sh` | Exercises `parser_configuration_file` against a JSON config for every case the subject requires: fully valid config, missing keys, invalid types, out of range values, unknown keys, malformed JSON |
 | `tests/test_maze.py` and `test_maze.sh` | Renders the maze to the terminal for a given width, height and seed. Was used to determine, by direct visual inspection and analysis, where `Pacman's` spawn cell should be relative to the generated maze |
 
-#### TODO -> -> VAI SER PRECISO CRIAR PYTESTS.
-### 2. Automated tests (not yet written)
-
-No `pytest`/`unittest` file exists in the project yet. This is a known gap, not an oversight being ignored — see Open Points.
+Several other tests were made by each member, making sure the game ran smoothly without undesired results.

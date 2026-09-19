@@ -38,6 +38,8 @@ class Ghost(MovableEntity):
             scatter_area_bottom_right (tuple[int, int]): Coordinates (x, y)
                 of the scatter zone's bottom right corner.
             id (int): Unique identifier for this ghost.
+            starter_position (tuple[int, int]): Position where the Ghost
+                first starts the game.
 
         Returns:
             None
@@ -52,6 +54,8 @@ class Ghost(MovableEntity):
             self.generate_random_pos(scatter_area_top_left,
                                      scatter_area_bottom_right))
         self.id = id
+
+        self.starter_position = self.pos
 
     def generate_random_pos(self,
                             top_left_boundary: tuple[int, int],
@@ -205,6 +209,18 @@ class Ghost(MovableEntity):
             best_direction = opposite_direction
 
         return best_direction
+
+    def reset_position(self) -> None:
+        """Set Ghost position to it's original starting position
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+
+        self.pos = self.starter_position
 
     def update_ghost(self, delta: float,
                      pacman_pos: tuple[int, int],

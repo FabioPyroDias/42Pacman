@@ -512,6 +512,7 @@ class Game():
                 self.eaten_timer[ghost] += delta
                 if self.eaten_timer[ghost] >= TIMER_EATEN:
                     self.eaten_timer.pop(ghost)
+                    ghost.reset_position()
                     ghost.state = self.ghost_state
 
     def generate_maze(self) -> None:

@@ -135,7 +135,90 @@ Configuration parsers and highscore modules operate without game dependencies. W
 
 ## Project Management
 
-Project management documents are available in the [`project_management/project_management.md`](./project_management/project_management.md) directory.
+Project management documents are available in the [`project_management.md`](./project_management.md) directory.
+
+## Project Structure
+
+```text
+
+.
+├── assets
+│   ├── blinky.xpm
+│   ├── clyde.xpm
+│   ├── dead_ghost.xpm
+│   ├── inky.xpm
+│   ├── pacgum.xpm
+│   ├── pacman_life.xpm
+│   ├── pacman.xpm
+│   ├── pinky.xpm
+│   ├── scared_ghost.xpm
+│   └── super_pacgum.xpm
+├── config.json
+├── consts.py
+├── entities
+│   ├── collectable.py
+│   ├── entity.py
+│   ├── ghost.py
+│   ├── __init__.py
+│   └── pacman.py
+├── enums.py
+├── gui
+│   ├── gui.py
+│   ├── __init__.py
+│   └── scenes
+│       ├── base_render.py
+│       ├── game_over.py
+│       ├── gameplay.py
+│       ├── highscore_view.py
+│       ├── hud.py
+│       ├── __init__.py
+│       ├── instructions.py
+│       ├── main_menu.py
+│       ├── name_entry.py
+│       ├── pause_menu.py
+│       ├── __pycache__
+│       │   ├── base_render.cpython-310.pyc
+│       │   ├── game_over.cpython-310.pyc
+│       │   ├── gameplay.cpython-310.pyc
+│       │   ├── highscore_view.cpython-310.pyc
+│       │   ├── hud.cpython-310.pyc
+│       │   ├── __init__.cpython-310.pyc
+│       │   ├── instructions.cpython-310.pyc
+│       │   ├── main_menu.cpython-310.pyc
+│       │   ├── name_entry.cpython-310.pyc
+│       │   ├── pause_menu.cpython-310.pyc
+│       │   ├── ready.cpython-310.pyc
+│       │   └── victory.cpython-310.pyc
+│       ├── ready.py
+│       └── victory.py
+├── highscore
+│   ├── highscore.py
+│   └── __init__.py
+├── highscores.json
+├── Makefile
+├── manager
+│   ├── game.py
+│   └── __init__.py
+├── maze
+│   ├── __init__.py
+│   └── maze_adapter.py
+├── mazegenerator-2.1.0-py3-none-any.whl
+├── pac-man.py
+├── parser
+│   ├── __init__.py
+│   ├── parser.py
+│   └── utils.py
+├── project_management.md
+├── pyproject.toml
+├── README.md
+├── tests
+│   ├── test_maze.py
+│   ├── test_maze.sh
+│   ├── test_parser.py
+│   └── test_parser.sh
+└── uv.lock
+
+```
 
 ## Resources
 

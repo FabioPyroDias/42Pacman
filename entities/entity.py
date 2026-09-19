@@ -114,6 +114,9 @@ class MovableEntity(Entity):
             tuple[int, int]: The resulting coordinates (x, y).
         """
 
+        if not direction:
+            return (pos[0], pos[1])
+
         if direction == Direction.NORTH:
             return (pos[0], pos[1] - 1)
         elif direction == Direction.SOUTH:
@@ -177,10 +180,15 @@ class MovableEntity(Entity):
         # move_progress is updated
         if self.move_progress <= 0.0:
             next_position = self.get_next_position()
+            next_position_continue = self.get_next_position_on(
+                self.pos, self.direction)
             if maze.is_walkable(self.pos, next_position):
                 if self.next_direction:
                     self.direction = self.next_direction
                     self.next_direction = None
+                self.move_progress += delta * ENTITY_SPEED
+            elif maze.is_walkable(self.pos, next_position_continue):
+                self.next_direction = None
                 self.move_progress += delta * ENTITY_SPEED
 
         # If Entity is between two Cells, and it wants to reverse the
