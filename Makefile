@@ -59,12 +59,15 @@ lint-strict: install
 
 destroy: clean
 	$(RM) $(UV_PROJECT_ENVIRONMENT)
+	$(RM) package
 	$(RM) pac-man
 
 package: install
 	$(UV) run pyinstaller pac-man.spec
 	mv dist/pac-man .
-	zip pacman.zip assets/* pac-man config.json
+	zip pacman.zip pac-man assets/* config.json README_Package.md
+	mv pac-man package
+	mv pacman.zip package
 	$(RM) dist
 	$(RM) build
 	$(RM) pac-man
