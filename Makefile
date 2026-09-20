@@ -34,7 +34,7 @@ install:
 	$(UV) sync
 
 run: install
-		$(UV) run pac-man.py $(CONFIG);
+	$(UV) run pac-man.py $(CONFIG);
 
 debug: install
 	$(PYTHON) -m pdb pac-man.py $(CONFIG)
