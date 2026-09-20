@@ -66,6 +66,7 @@ package: install
 	$(UV) run pyinstaller pac-man.spec
 	mv dist/pac-man .
 	zip pacman.zip pac-man assets/* config.json README_Package.md
+	mkdir package
 	mv pac-man package
 	mv pacman.zip package
 	$(RM) dist
