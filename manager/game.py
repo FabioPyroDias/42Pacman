@@ -632,6 +632,7 @@ class Game():
         the maze, and resets timers, ghosts, and pacman to their
         starting state.
         """
+        self.lives = self.config["lives"]
         self.current_level_index = 0
         self.score = 0
         self.generate_maze()

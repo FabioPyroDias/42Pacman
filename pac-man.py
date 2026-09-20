@@ -121,7 +121,7 @@ def main() -> None:
                                 game.cheat_add_lives()
                             case pygame.K_n:
                                 game.cheat_skip_level()
-                            case pygame.K_i:
+                            case pygame.K_v:
                                 game.cheat_toggle_invincible()
                             case pygame.K_f:
                                 game.cheat_toggle_ghost_freeze()
