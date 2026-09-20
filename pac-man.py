@@ -40,7 +40,7 @@ def main() -> None:
     """
 
     try:
-        config_path = ""
+        config_path = "config.json"
         if len(sys.argv) >= 2:
             config_path = sys.argv[1]
         config = parser_configuration_file(config_path)

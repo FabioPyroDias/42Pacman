@@ -34,7 +34,7 @@ install:
 	$(UV) sync
 
 run: install
-	$(UV) run pac-man.py $(CONFIG)
+		$(UV) run pac-man.py $(CONFIG);
 
 debug: install
 	$(PYTHON) -m pdb pac-man.py $(CONFIG)
@@ -44,6 +44,8 @@ clean:
 	$(RM) .mypy_cache
 	$(RM) __pycache__
 	$(RM) */__pycache__
+	$(RM) dist
+	$(RM) build
 
 lint: install
 	clear
@@ -56,4 +58,15 @@ lint-strict: install
 	$(PYTHON) -m mypy --strict .
 
 destroy: clean
-	$(RM) pacman
+	$(RM) $(UV_PROJECT_ENVIRONMENT)
+	$(RM) pac-man
+
+package: install
+	$(UV) run pyinstaller pac-man.spec
+	mv dist/pac-man .
+	zip pacman.zip assets/* pac-man config.json
+	$(RM) dist
+	$(RM) build
+	$(RM) pac-man
+
+.PHONY: install run debug clean lint lint-strict destroy package
