@@ -225,6 +225,7 @@ Project management documents are available in the [`project_management.md`](./pr
 ### Original Pacman
 
 - [Original Pac-Man ghost AI reference (Pac-Man Dossier)](https://www.gamedeveloper.com/design/the-pac-man-dossier)
+- [Original Pac-Man sprites](https://www.spriters-resource.com/arcade/pacman/)
 
 ### Use of AI
 
