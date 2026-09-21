@@ -44,6 +44,7 @@ clean:
 	$(RM) .mypy_cache
 	$(RM) __pycache__
 	$(RM) */__pycache__
+	$(RM) */*/__pycache__
 	$(RM) dist
 	$(RM) build
 
