@@ -6,7 +6,7 @@ from maze.maze_adapter import MazeAdapter
 from .base_render import BaseRender
 from enums import GameState
 from consts import (
-    CELL_SIZE, LIFE_ICON_SPRITE_PATH, WALL_OFFSET,
+    CELL_SIZE, LIFE_ICON_SPRITE_PATH, SPRITE_SIZE, WALL_OFFSET,
     LIFE_ICON_SPACING, COMMOM_TEXT_COLOR, MAX_SCORE_DIGITS
 )
 
@@ -74,6 +74,7 @@ class HUD(BaseRender):
         self.__current_level = -1
         self.__current_score = -1
         self.__last_size = (0, 0)
+        self.__current_lives = -1
 
     def __load_assets(self) -> None:
         """
@@ -134,6 +135,10 @@ class HUD(BaseRender):
             None,
             int(self._win_size_y * 0.03)
             )
+        self._live_font = pygame.font.SysFont(
+            None,
+            SPRITE_SIZE
+        )
 
         self.__fonts_loaded = True
 
@@ -167,6 +172,13 @@ class HUD(BaseRender):
                 COMMOM_TEXT_COLOR
             )
             self.__current_level = level
+        if (self._game.lives != self.__current_lives):
+            self.__current_lives = self._game.lives
+            self._live_text = self._live_font.render(
+                f"+{self._game.lives - 3}",
+                0,
+                COMMOM_TEXT_COLOR
+            )
         if self.__current_score != score or not self.__text_loaded:
             txt_score = str(score)
             if len(txt_score) >= MAX_SCORE_DIGITS:
@@ -294,23 +306,20 @@ class HUD(BaseRender):
         """
         Render the life icons on the screen.
 
-        This method draws a specified number of life icons, up to a
-        maximum of 11,
+        This method draws a specified number of life icons,
         on the game surface. The icons are spaced apart according to a
         predefined
         spacing constant and are positioned at a specific location on the
         screen.
 
         Args:
-            lives (int): The number of life icons to render. The maximum
-            rendered
-            will be capped at 11.
+            lives (int): The number of life icons to render.
 
         Returns:
             None
         """
         for i in range(lives):
-            if i == 11:
+            if i == 3:
                 break
             self._render_surface(
                 self._life,
@@ -318,6 +327,17 @@ class HUD(BaseRender):
                  self._win_size_y - CELL_SIZE + WALL_OFFSET
                  )
                  )
+        if lives > 3:
+            self._win.blit(
+                self._live_text,
+                self._live_text.get_rect(
+                    center=(4 * LIFE_ICON_SPACING + WALL_OFFSET,
+                            self._win_size_y - (
+                                CELL_SIZE - SPRITE_SIZE // 2 + WALL_OFFSET
+                                )
+                            )
+                )
+            )
 
     def render_hud(self, level: int, score: int,
                    lives: int, timer: float,

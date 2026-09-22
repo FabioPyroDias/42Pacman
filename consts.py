@@ -126,16 +126,16 @@ CONTROLS_LIST = [
     ("ESC (Paused) ", " Return to Main Menu"),
 ]
 INSTRUCTIONS_LIST = [
-    ("Objective ", "Eat all pacgums to win the level"),
-    ("Game Win ", "Complete all levels to win the game"),
-    ("Pacgum ", "+X points when eaten"),
-    ("Super-pacgum ", "+Y points, makes ghosts edible for a short time"),
-    ("Edible Ghost ", "+Z points when eaten"),
-    ("Lives ", "Start with +L, lose one when touched by a non-edible ghost"),
-    ("Respawn ", "Return to the middle of the maze after losing a life"),
-    ("Game Over ", "When all lives are lost"),
-    ("Level Timer ", "Each level has a time limit"),
-    ("Pause ", "Player can pause and resume during the game")
+    ("Objective: ", "Eat all pacgums to win the level"),
+    ("Game: ", "Complete all levels to win the game"),
+    ("Pacgum: ", "+X points when eaten"),
+    ("Super-pacgum: ", "+Y points, makes ghosts edible for a short time"),
+    ("Edible Ghost: ", "+Z points when eaten"),
+    ("Lives: ", "Start with +L, lose one when touched by a non-edible ghost"),
+    ("Respawn: ", "Return to the middle of the maze after losing a life"),
+    ("Game Over: ", "When all lives are lost"),
+    ("Level Timer: ", "Each level has a time limit"),
+    ("Pause: ", "Player can pause and resume during the game")
 ]
 
 PACMAN_DEATH_ANIMATION_DURATION = 1.28

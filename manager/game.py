@@ -596,7 +596,8 @@ class Game():
         Returns:
             None
         """
-
+        if self.lives >= 102:
+            return
         self.lives += 1
 
     def visual_position(self, entity: MovableEntity) -> tuple[float, float]:

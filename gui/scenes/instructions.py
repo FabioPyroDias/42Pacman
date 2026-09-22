@@ -185,23 +185,23 @@ class Instructions(BaseRender):
         instructions = []
         for first, second in INSTRUCTIONS_LIST:
             match first:
-                case "Pacgum ":
+                case "Pacgum: ":
                     second = second.replace(
                         "+X",
                         str(self._game.config["points_per_pacgum"])
                         )
-                case "Super-pacgum ":
+                case "Super-pacgum: ":
                     "points_per_super_pacgum"
                     second = second.replace(
                         "+Y",
                         str(self._game.config["points_per_super_pacgum"])
                         )
-                case "Edible Ghost ":
+                case "Edible Ghost: ":
                     second = second.replace(
                         "+Z",
                         str(self._game.config["points_per_ghost"])
                     )
-                case "Lives ":
+                case "Lives: ":
                     second = second.replace(
                         "+L",
                         str(self._game.config["lives"])

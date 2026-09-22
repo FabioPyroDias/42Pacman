@@ -80,12 +80,11 @@ def is_valid_level(value: Any) -> bool:
             max_pacgums = (value_width * value_height
                            - PATTERN_42_CELL_COUNT - MAZE_CORNERS)
         else:
-            max_pacgums = value_width * value_height
+            max_pacgums = value_width * value_height - MAZE_CORNERS
 
         if not isinstance(value_number_of_pacgums, int):
             return False
         if value_number_of_pacgums != max_pacgums:
-            print(level)
             return False
 
     return True
