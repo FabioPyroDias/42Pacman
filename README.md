@@ -135,7 +135,7 @@ Configuration parsers and highscore modules operate without game dependencies. W
 
 ## Project Management
 
-Project management documents are available in the [`project_management.md`](./project_management.md) directory.
+Project management documents are available in the [`project_management.md`](./project_management/project_management.md) directory.
 
 ## Itch.io
 - [Download package](https://jvelho.itch.io/42pac-man/download/_Vu0Uk9iTWBFZs7o9uz79Vu_hB71uuLAP0y6jura)
