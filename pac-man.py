@@ -41,8 +41,11 @@ def main() -> None:
 
     try:
         config_path = "config.json"
-        if len(sys.argv) >= 2:
+        if len(sys.argv) == 2:
             config_path = sys.argv[1]
+        elif len(sys.argv) > 2:
+            raise ValueError("too many arguments\n"
+                             "Usage: python3 pac-man.py <config.json>")
         config = parser_configuration_file(config_path)
         highscore = Highscore(config["highscore_filename"])
         game = Game(config)
